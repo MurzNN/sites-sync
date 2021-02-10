@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 
 const fs = require("fs");
+const prettyBytes = require("pretty-bytes");
 
 const { config, dbDumpRestore } = require(__dirname + "/lib/utils");
 
