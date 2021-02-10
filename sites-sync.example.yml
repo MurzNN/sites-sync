@@ -1,0 +1,11 @@
+namespace: brick-api
+dbUriEnv: MONGO_URI
+#dbUri: MONGO_URI
+dumpDirectory: ./temp
+
+siteDefault: "dev"
+
+sites:
+  dev:
+    - host: localhost
+      directory: .
