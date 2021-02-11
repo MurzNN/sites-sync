@@ -3,7 +3,7 @@
 const fs = require("fs");
 const prettyBytes = require("pretty-bytes");
 
-const { config, dbRestore } = require(__dirname + "/lib/utils");
+const { config, dbClear, dbRestore } = require(__dirname + "/lib/utils");
 
 if (!fs.existsSync(config.dumpFile)) {
   console.log("ERROR: Database dump file " + config.dumpFile + " not exists!");
