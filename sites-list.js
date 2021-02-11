@@ -2,4 +2,4 @@
 
 const { config } = require(__dirname + "/lib/utils");
 
-console.log(config);
+console.log(config.sites);

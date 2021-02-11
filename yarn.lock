@@ -428,13 +428,6 @@ ssh2@^0.8.9:
   dependencies:
     ssh2-streams "~0.4.10"
 
-ssh2shell@^1.9.4:
-  version "1.9.4"
-  resolved "https://registry.yarnpkg.com/ssh2shell/-/ssh2shell-1.9.4.tgz#f2d941a6a6df27c1e5d56ee3d97e3294d207a3a8"
-  integrity sha512-U914KA1j8S8DTt7OIfb+BvDgPzqmvArVaQ1g2X5fPgGlmN3Gjtf/m5SV0K16K3jm90sf5GUB8BXyCdXTXvEqiQ==
-  dependencies:
-    ssh2 "^0.8.9"
-
 streamsearch@~0.1.2:
   version "0.1.2"
   resolved "https://registry.yarnpkg.com/streamsearch/-/streamsearch-0.1.2.tgz#808b9d0e56fc273d809ba57338e929919a1a9f1a"

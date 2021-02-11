@@ -13,5 +13,6 @@ if (!fs.existsSync(config.dumpFile)) {
 dumpFileStat = fs.statSync(config.dumpFile);
 console.log("Restoring database from file " + config.dumpFile
   + "(size: " + prettyBytes(dumpFileStat.size) + " to current db...");
+dbClear(config.siteCurrent.dbConnectionString);
 dbRestore(config.siteCurrent.dbConnectionString, config.dumpFile);
 console.log("Database successfully restored.");
