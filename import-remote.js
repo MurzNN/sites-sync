@@ -5,7 +5,6 @@ const sshClient = require('ssh2');
 const fs = require('fs');
 
 const execSync = require("child_process").execSync;
-    dumpCommand = `ssh ${config.siteRemote.user}@${config.siteRemote.host}`;
-    // console.log(dumpCommand);
-    // result = await mongoUtils.loggedExec(dumpCommand);
-    execSync(dumpCommand);
+
+execSync(`ssh ${config.siteRemote.user}@${config.siteRemote.host} "cd ${config.siteRemote.path}; yarn --silent db-dump" > ${config.dumpFile}`);
+execSync(`yarn --silent db-restore`);
