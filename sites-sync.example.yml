@@ -1,13 +1,16 @@
 # Name of ENV variable to read the database connection string
-dbUriEnv: MONGO_URI
+dbUriEnv: DATABASE_URL
 
 # Path to file, that will be used to store dumps.
 # Allowed absolute path like /tmp/site-sync_db-dump.gz
 # or relative to project directory - without trailing slash, like temp/my-cool-project_db-dump.gz
 dumpFile: /tmp/site-sync_db-dump.gz
 
+# Name of ENV variable to read the current site name
+siteNameEnv: SITE
+
 # Id of site to use as default
-siteDefault: "dev"
+siteDefaultName: "dev"
 
 # List of sites to sync
 sites:
