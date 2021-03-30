@@ -28,6 +28,6 @@ conn.on('ready', () => {
       // console.log('OUTPUT: ' + data);
       console.log(data  + '');
     });
-    stream.end('cd ' + config.siteRemote.path + '\nyarn versions\nexit\n');
+    stream.end('cd ' + config.siteUpstream.path + '\nyarn versions\nexit\n');
   });
 }).connect(siteSshCredentials);
