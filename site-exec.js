@@ -1,33 +1,17 @@
 #!/usr/bin/env node
 
-const { config, sshCredentials } = require(__dirname + "/lib/utils");
-const sshClient = require('ssh2');
-const fs = require('fs');
+const { argv, config, sshExec } = require(__dirname + "/lib/utils");
 
-const conn = new sshClient();
-let siteSshCredentials = sshCredentials();
-siteSshCredentials.privateKey = fs.readFileSync(siteSshCredentials.privateKey);
-console.log(siteSshCredentials)
+let cmdToRun = argv['_'][0];
 
-conn.on('ready', () => {
-  console.log('Client :: ready');
-  // conn.exec('cd /tmp', (err, stream) => {
-  //   if (err) throw err;
-  //   stream.on('data', (data) => {
-  //     console.log('STDOUT: ' + data);
-  //   }).stderr.on('data', (data) => {
-  //     console.log('STDERR: ' + data);
-  //   });
-  // });
-  conn.shell((err, stream) => {
-    if (err) throw err;
-    stream.on('close', () => {
-      console.log('Stream :: close');
-      conn.end();
-    }).on('data', (data) => {
-      // console.log('OUTPUT: ' + data);
-      console.log(data  + '');
-    });
-    stream.end('cd ' + config.siteUpstream.path + '\nyarn versions\nexit\n');
-  });
-}).connect(siteSshCredentials);
+(async function () {
+  cmdToRun = `cd ${config.siteUpstream.path}; ` + cmdToRun;
+  try {
+    // console.log(await sshExec(cmdToRun));
+    await sshExec(cmdToRun, true);
+  } catch (e) {
+    console.log("ERROR:");
+    console.log(e.toString());
+  }
+  process.exit();
+})();

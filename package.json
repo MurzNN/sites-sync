@@ -1,6 +1,6 @@
 {
   "name": "sites-sync",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "description": "Tools for automate sync of dynamic data (content like database and files) between sites via ssh.",
   "main": "index.js",
   "license": "MIT",
@@ -10,6 +10,7 @@
     "db-restore": "./db-restore.js",
     "site-import": "./site-import.js",
     "site-ssh": "./site-ssh.js",
+    "site-exec": "./site-exec.js",
     "sites-list": "./sites-list.js"
   },
   "dependencies": {
@@ -19,6 +20,8 @@
     "pretty-bytes": "^5.5.0",
     "ssh2": "^0.8.9",
     "ssh2-client": "^1.3.2",
+    "ssh2-promise": "^0.1.7",
+    "yargs": "^16.2.0",
     "yargs-unparser": "^2.0.0"
   }
 }
