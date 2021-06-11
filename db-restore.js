@@ -3,17 +3,18 @@
 const fs = require("fs");
 const prettyBytes = require("pretty-bytes");
 
-const { config, dbClear, dbRestore } = require(__dirname + "/lib/utils");
+const { argv, config, dbClear, dbRestore } = require(__dirname + "/lib/utils");
+let dumpFile = argv['_'][0] ?? config.dumpFile;
 
-if (!fs.existsSync(config.dumpFile)) {
-  console.log("ERROR: Database dump file " + config.dumpFile + " not exists!");
+if (!fs.existsSync(dumpFile || config.dumpFile)) {
+  console.log("ERROR: Database dump file " + dumpFile + " not exists!");
   process.exit(1);
 }
 
-dumpFileStat = fs.statSync(config.dumpFile);
-console.log("Restoring database from file " + config.dumpFile
+dumpFileStat = fs.statSync(dumpFile);
+console.log("Restoring database from file " + dumpFile
   + "(size: " + prettyBytes(dumpFileStat.size) + " to current db...");
 dbClear();
 console.log("Working database cleared.");
-dbRestore();
+dbRestore(dumpFile);
 console.log("Database successfully restored.");
