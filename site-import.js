@@ -21,7 +21,7 @@ let result = execSync(`ssh ${config.siteUpstream.user}@${config.siteUpstream.hos
 console.log(result.toString());
 dumpFileStat = fs.statSync(config.dumpFile);
 console.log(`Database downloaded from remote site to ${config.dumpFile} (` + prettyBytes(dumpFileStat.size) + ` compressed). Importing...`);
-result = execSync(`yarn --silent db-restore`);
+result = execSync(`yarn --silent db-restore ${config.dumpFile}`);
 console.log(result.toString());
 fs.unlinkSync(config.dumpFile);
 console.log('Database successfully imported from remote site.');
