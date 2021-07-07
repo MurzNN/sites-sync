@@ -1,10 +1,10 @@
 #!/usr/bin/env node
 
 const sshClient = require('ssh2-client');
-const { config, sshCredentials } = require(__dirname + "/lib/utils");
+const { argv, config, sshCredentials } = require(__dirname + "/lib/utils");
 
-const site = 'dev'
-const opts = sshCredentials();
+const site = argv['_'][0] ?? config.siteUpstreamName;
+const opts = sshCredentials(site);
 opts.privateKey = opts.identity;
 
 const uri = opts.username + '@' + opts.host;
@@ -15,11 +15,12 @@ opts.pty = {
     term: 'xterm'
   }
 }
+console.log(`Connecting to: ${opts.username}@${opts.host} ...`);
 
 console.log(`For the present you must manually run the \`cd\` command:
 ---
-cd ${config.siteUpstream.path}
----`)
+cd ${config.sites[site].path}
+---`);
 
 // Setup a live shell on remote host
 sshClient
