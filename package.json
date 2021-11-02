@@ -23,4 +23,13 @@
     "yargs": "^16.2.0",
     "yargs-unparser": "^2.0.0"
   }
+  "author": "Alexey Murz Korepov <MurzNN@gmail.com>",
+  "homepage": "https://github.com/MurzNN/sites-sync#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/MurzNN/sites-sync.git"
+  },
+ "bugs": {
+    "url": "https://github.com/MurzNN/sites-sync/issues"
+  },  
 }
