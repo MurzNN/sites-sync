@@ -1,2 +1,3 @@
 /node_modules
-/dist
+#temporary enable dist
+#/dist
