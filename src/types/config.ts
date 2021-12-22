@@ -16,6 +16,10 @@ export type SitesSyncConfigDbConnection = {
   port: number | null;
   username: string;
   password: string;
+  customParams?: {
+    dump?: string;
+    query?: string;
+  }
 }
 
 export type SitesSyncConfig = {

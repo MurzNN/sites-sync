@@ -32,7 +32,6 @@ export class dbAdapterClass implements dbAdapterInterface {
     if(type == 'query' && !options.verbose) {
       pgOptions.quiet =true;
     }
-
     const pgArguments: yargsUnparse.Arguments = {
       // Removing empty values
       ...Object.fromEntries(
@@ -41,12 +40,15 @@ export class dbAdapterClass implements dbAdapterInterface {
       _: []
     };
 
-    const command: string =
+    let command: string =
       `PGPASSWORD=${this.connection.password} ` +
       commandType[type] +
       " " +
       yargsUnparse(pgArguments).join(" ");
 
+    if(this.connection.customParams?.[type]) {
+      command = command + ' ' + this.connection.customParams[type];
+    }
     return command;
   }
 
