@@ -12,6 +12,7 @@ jobs:
           registry-url: 'https://registry.npmjs.org'
       - run: yarn install --immutable --immutable-cache --check-cache
       - run: tsc -p ./tsconfig.prod.json
+      - run: ./scripts/npmjs-repo-cleanup.sh
       - run: npm publish --tag canary
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

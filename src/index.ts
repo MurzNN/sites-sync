@@ -51,15 +51,23 @@ const myYargs = await yargs(process.argv.slice(2))
       const {size} = statSync(tempFile);
       const tempFileSize = prettyBytes(size)
       console.log(`Remote database dump (${tempFileSize}) downloaded successfully.`);
+
       console.log(`Clearing local database...`);
       await dbAdapter.clear();
+
       console.log(`Importing dump locally...`);
       restoreDbFromFile(tempFile);
-      unlinkSync(tempFile);
+
+      if (argv.keepFiles ?? false) {
+        console.log(`Skipping remove downloaded files.`);
+      } else {
+        console.log(`Removing downloaded files...`);
+        unlinkSync(tempFile);
+      }
+
       console.log(`Database import finished successfully.`);
       process.exit(0);
     })
-    // .showHelp()
     .help('h')
     .alias('h', 'help')
     .epilog('copyright 2019')
