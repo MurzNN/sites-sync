@@ -1,0 +1,4 @@
+#!/usr/bin/env sh
+
+NODE=$(which node)
+$NODE --loader ts-node/esm --no-warnings $(dirname $0)/dist/index.js
