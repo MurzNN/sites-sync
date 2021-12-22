@@ -1,14 +1,8 @@
 {
   "name": "sites-sync",
-<<<<<<< HEAD
-  "version": "0.2.0",
-  "description": "Tools for automate sync of dynamic data (content like database and files) between sites via ssh.",
-  "main": "index.js",
-=======
   "version": "0.2.0-canary.0",
   "description": "Tools for automate sync of dynamic data (content like database and files) between sites via ssh or kubectl.",
   "main": "dist/index.js",
->>>>>>> 0dce17f... Add github actions
   "license": "MIT",
   "type": "module",
   "bin": {
