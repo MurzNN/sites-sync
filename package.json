@@ -1,6 +1,6 @@
 {
   "name": "sites-sync",
-  "version": "0.2.0-canary.1",
+  "version": "0.2.0-canary.2",
   "description": "Tools for automate sync of dynamic data (content like database and files) between sites via ssh or kubectl.",
   "main": "dist/index.js",
   "license": "MIT",
@@ -10,19 +10,19 @@
     "type": "git",
     "url": "https://github.com/MurzNN/sites-sync.git"
   },
-	"keywords": [
-		"backup",
-		"database",
-		"dump",
-		"sync",
-		"synchronize",
-		"sites-sync"
-	],
-	"author": {
-		"name": "Alexey Murz Korepov",
-		"email": "MurzNN@gmail.com",
-		"url": "http://korepov.pro"
-	},
+  "keywords": [
+    "backup",
+    "database",
+    "dump",
+    "sync",
+    "synchronize",
+    "sites-sync"
+  ],
+  "author": {
+    "name": "Alexey Murz Korepov",
+    "email": "MurzNN@gmail.com",
+    "url": "http://korepov.pro"
+  },
   "bin": {
     "sites-sync": "sites-sync"
   },
