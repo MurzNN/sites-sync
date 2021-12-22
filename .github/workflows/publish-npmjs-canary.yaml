@@ -1,7 +1,5 @@
 name: Publish Canary builds to npmjs
-on:
-  release:
-    types: [created]
+on: [push]
 jobs:
   build:
     runs-on: ubuntu-latest
