@@ -8,26 +8,27 @@ import { siteShell, siteExec } from "./lib/siteCommands.js";
 import prettyBytes from 'pretty-bytes';
 
 const myYargs = await yargs(process.argv.slice(2))
+    .scriptName('sites-sync')
     .usage('Usage: $0 <command> [options]')
 
-    .command('shell', 'Interactive shell to remote site.', {}, async (argv) => {
+    .command(['shell', 'sh', 's'], 'Interactive shell to remote site.', {}, async (argv) => {
       siteShell();
       process.exit(0);
     })
-    .command('exec', 'Execute command on remote site.', {}, async (argv) => {
+    .command(['exec', 'e'], 'Execute command on remote site.', {}, async (argv) => {
       const cmd = argv._[1] as string;
       siteExec(cmd);
       process.exit(0)
     })
-    .command('import', 'Import remote site to current (files and databases).', {}, async (argv) => {
+    .command(['import', 'i'], 'Import remote site to current (files and databases).', {}, async (argv) => {
       throw 'Not yet implemented.';
       process.exit(0)
     })
-    .command('backup', 'Make a backup of current site to single file (files and databases).', {}, async (argv) => {
+    .command(['backup', 'b'], 'Make a backup of current site to single file (files and databases).', {}, async (argv) => {
       throw 'Not yet implemented.';
       process.exit(0)
     })
-    .command('restore', 'Restore current site from single file (files and databases).', {}, async (argv) => {
+    .command(['restore', 'r'], 'Restore current site from single file (files and databases).', {}, async (argv) => {
       throw 'Not yet implemented.';
       process.exit(0)
     })
