@@ -9,7 +9,8 @@
     "sites-sync": "sites-sync"
   },
   "scripts": {
-    "sites-sync": "/usr/bin/env -S node --loader ts-node/esm --no-warnings ./dist/index.js"
+    "sites-sync": "/usr/bin/env -S node --loader ts-node/esm --no-warnings ./dist/index.js",
+    "postinstall": "tsc --build"
   },
   "dependencies": {
     "@tuplo/envsubst": "^1.13.0",
