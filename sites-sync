@@ -1,4 +1,6 @@
 #!/usr/bin/env sh
 
+DIR=$(dirname $([ -L $0 ] && readlink -f $0 || echo $0))
 NODE=$(which node)
-$NODE --loader ts-node/esm --no-warnings $(dirname $0)/dist/index.js "$@"
+
+$NODE --loader ts-node/esm --no-warnings $DIR/dist/index.js "$@"
