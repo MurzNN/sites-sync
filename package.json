@@ -6,7 +6,7 @@
   "license": "MIT",
   "type": "module",
   "bin": {
-    "sites-sync": "sites-sync.js"
+    "sites-sync": "sites-sync"
   },
   "scripts": {
     "sites-sync": "/usr/bin/env -S node --loader ts-node/esm --no-warnings ./dist/index.js"
