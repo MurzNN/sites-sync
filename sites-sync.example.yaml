@@ -2,10 +2,12 @@
 # This is a configuration file for sites-sync package.                         #
 #                                                                              #
 # You can use environment variables using ${ENV_NAME} construction in file.    #
+#                                                                              #
 # Custom variables:                                                            #
 # - ${TIMESTAMP} - current unix timestamp                                      #
 # - ${TIME} - current time in human readable format                            #
 ################################################################################
+
 
 # ID of current site. You can use environment variable to set right id per site.
 siteId: ${SITE}
@@ -15,8 +17,6 @@ siteId: ${SITE}
 siteUpstreamId: ${SITE_UPSTREAM}
 
 # Location of directory to store dump files.
-# The `${TIMESTAMP}` construction
-# will be replaced to current unix timestamp.
 backupLocation: temp/dump-${TIME}
 
 # Location of directory for temporary files
@@ -47,21 +47,17 @@ storages:
 
 sites:
   dev:
-    shellCommand: ssh -t dev.brick.ru@dev.brick.ru 'cd /srv/dev.brick.ru/domains/api.dev.brick.ru/brick-api && exec bash -l'
-    execTemplate: ssh dev.brick.ru@dev.brick.ru 'cd /srv/dev.brick.ru/domains/api.dev.brick.ru/brick-api && {%COMMMANDS%}'
-    syncStorageTemplate: "rsync -aur --blocking-io --info=progress2 --delete --rsync-path=/srv/dev.brick.ru/domains/api.dev.brick.ru/brick-api/{%PATH%} --rsh=\"ssh dev.brick.ru@dev.brick.ru\" rsync: ./{%PATH%}"
+    shellCommand: ssh -t user@example.com 'cd /home/user/sites/mycoolsite.com && exec bash -l'
+    execTemplate: ssh user@example.com 'cd /home/user/sites/mysite.com && {%COMMMANDS%}'
+    syncStorageTemplate: "rsync -aur --blocking-io --info=progress2 --delete --rsync-path= /home/user/sites/mysite.com/{%PATH%} --rsh=\"ssh user@example.com\" rsync: ./{%PATH%}"
 
   live:
-    host: live.brick.ru
+    host: mycoolsite.com
     user: brick
     path: /home/brick/brick-api
     protected: true
 
   stage:
-    shellCommand: kubectl exec -n brick-staging -it deployment/brick-keystone -- sh -c 'cd /app; exec sh'
-    execTemplate: kubectl exec -n brick-staging deployment/brick-keystone -- sh -c '{%COMMMANDS%}'
-    syncStorageTemplate: "rsync -aur --blocking-io --info=progress2 --delete --rsync-path=./{%PATH%} --rsh=\"$(which kubectl) exec deployment/brick-keystone -i -- \" rsync: ./{%PATH%}"
-
-  self:
-    execTemplate: ssh k.dev.brick.ru@k.dev.brick.ru 'cd /srv/k.dev.brick.ru/domains/api.k.dev.brick.ru/brick-api && {%COMMMANDS%}'
-    shellCommand: ssh -t k.dev.brick.ru@k.dev.brick.ru 'cd /srv/k.dev.brick.ru/domains/api.k.dev.brick.ru/brick-api && exec bash -l'
+    shellCommand: kubectl exec -n mycoolsite-staging -it deployment/mycoolsite -- sh -c 'cd /app; exec sh'
+    execTemplate: kubectl exec -n mycoolsite-staging deployment/mycoolsite -- sh -c '{%COMMMANDS%}'
+    syncStorageTemplate: "rsync -aur --blocking-io --info=progress2 --delete --rsync-path=./{%PATH%} --rsh=\"kubectl exec deployment/mycoolsite -i -- \" rsync: ./{%PATH%}"
