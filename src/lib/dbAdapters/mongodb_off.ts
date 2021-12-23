@@ -1,8 +1,8 @@
 import { execSync } from "child_process";
 import { SitesSyncConfigDbConnection } from "../../types/config";
-import { dbAdapterInterface } from "../../types/db";
+import { DbAdapterInterface } from "../../types/db";
 
-export class dbAdapterClass implements dbAdapterInterface {
+export class dbAdapterClass implements DbAdapterInterface {
   constructor(public connection: SitesSyncConfigDbConnection) {
   }
 

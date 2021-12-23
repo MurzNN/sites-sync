@@ -1,5 +1,5 @@
 import yargsUnparse from "yargs-unparser";
-import { dbAdapterInterface, DbCommandType } from "../../types/db.js";
+import { DbAdapterInterface, DbCommandType, DbConnection, DbCustomParams, DbType } from "../../types/db.js";
 import { execSync, ExecSyncOptionsWithBufferEncoding } from "child_process";
 
 import { SitesSyncConfigDbConnection } from "../../types/config.js";
@@ -15,12 +15,25 @@ type GenerateCommandOptions = {
   verbose?: boolean;
 }
 
-export class dbAdapterClass implements dbAdapterInterface {
+export default class DbAdapter implements DbAdapterInterface {
+  public connection: DbConnection;
+  public customParams: DbCustomParams | undefined;
 
-  constructor(public connection: SitesSyncConfigDbConnection) {
+  constructor(public config: SitesSyncConfigDbConnection) {
+    const dbConnectionUrl = new URL(config.uri);
+    const dbType = dbConnectionUrl.protocol.slice(0, -1) as DbType;
+
+    this.connection = {
+      type: dbType,
+      name: dbConnectionUrl.pathname?.substring(1),
+      host: dbConnectionUrl.host || 'localhost',
+      port: dbConnectionUrl.port ? parseInt(dbConnectionUrl.port) : null,
+      username: dbConnectionUrl.username ?? '',
+      password: dbConnectionUrl.password ?? '',
+    }
   }
 
-  generateCommand(type: DbCommandType = "query", options: GenerateCommandOptions = {}) {
+  public generateCommand(type: DbCommandType = "query", options: GenerateCommandOptions = {}) {
     let pgOptions: yargsUnparse.Arguments = {
       d: this.connection.name,
       h: this.connection.host,
@@ -46,13 +59,13 @@ export class dbAdapterClass implements dbAdapterInterface {
       " " +
       yargsUnparse(pgArguments).join(" ");
 
-    if(this.connection.customParams?.[type]) {
-      command = command + ' ' + this.connection.customParams[type];
+    if(this.config.customParams?.[type]) {
+      command = command + ' ' + this.config.customParams[type];
     }
     return command;
   }
 
-  exec(type: DbCommandType, input: string | null = null, options: ExecSyncOptionsWithBufferEncoding = {}) {
+  public exec(type: DbCommandType, input: string | null = null, options: ExecSyncOptionsWithBufferEncoding = {}) {
     if(input) {
       options.input = input;
     } else if(!options.stdio) {
@@ -71,11 +84,19 @@ export class dbAdapterClass implements dbAdapterInterface {
     }
   }
 
-  dump(execOptions: ExecSyncOptionsWithBufferEncoding = {}) {
+  public dump(execOptions: ExecSyncOptionsWithBufferEncoding = {}) {
     return this.exec('dump', null, execOptions);
   }
 
-  query(input: string|null = null, execOptions: ExecSyncOptionsWithBufferEncoding = {}) {
+  public restoreFromFile(file: string) {
+    const dbQueryCommand = this.generateCommand('query');
+    const cmd = `zcat -f ${file} | ${dbQueryCommand}`;
+    // console.log(cmd); throw 123
+    const result = execSync(cmd);
+
+  }
+
+  public query(input: string|null = null, execOptions: ExecSyncOptionsWithBufferEncoding = {}) {
     return this.exec('query', input, execOptions);
   }
 

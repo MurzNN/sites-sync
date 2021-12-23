@@ -1,0 +1,67 @@
+################################################################################
+# This is a configuration file for sites-sync package.                         #
+#                                                                              #
+# You can use environment variables using ${ENV_NAME} construction in file.    #
+# Custom variables:                                                            #
+# - ${TIMESTAMP} - current unix timestamp                                      #
+# - ${TIME} - current time in human readable format                            #
+################################################################################
+
+# ID of current site. You can use environment variable to set right id per site.
+siteId: ${SITE}
+
+# ID of default upstream site, that will be used to sync data from.
+# You can override upstream site using `-s siteId` command line argument.
+siteUpstreamId: ${SITE_UPSTREAM}
+
+# Location of directory to store dump files.
+# The `${TIMESTAMP}` construction
+# will be replaced to current unix timestamp.
+backupLocation: temp/dump-${TIME}
+
+# Location of directory for temporary files
+tempDirectory: /tmp
+
+# Database access configuration
+databases:
+  main:
+    # URI in format: database_type://user:password@host/db_name
+    # Currently supported database types: postgresql, mongo
+    # Examaple: postgresql://site_user:superPassw0rd@localhost/my_database
+    uri: ${DATABASE_URL}
+
+    # custom paramaters to add when launching database binary
+    customParams:
+      # for query tool (`psql` for postgresql, `mongo` for mongo)
+      query:
+      # for dump tool (`pg_dump` for postgresql, `mongodump` for mongo)
+      # it's recommended to set '-no-owner' for postgresql, if your site use
+      # different usernames per site
+      dump: --no-owner
+
+# Configure storage locations to sync in format:
+# name: location
+storages:
+  files: 'public/files'
+  images: 'public/images'
+
+sites:
+  dev:
+    shellCommand: ssh -t dev.brick.ru@dev.brick.ru 'cd /srv/dev.brick.ru/domains/api.dev.brick.ru/brick-api && exec bash -l'
+    execTemplate: ssh dev.brick.ru@dev.brick.ru 'cd /srv/dev.brick.ru/domains/api.dev.brick.ru/brick-api && {%COMMMANDS%}'
+    syncStorageTemplate: "rsync -aur --blocking-io --info=progress2 --delete --rsync-path=/srv/dev.brick.ru/domains/api.dev.brick.ru/brick-api/{%PATH%} --rsh=\"ssh dev.brick.ru@dev.brick.ru\" rsync: ./{%PATH%}"
+
+  live:
+    host: live.brick.ru
+    user: brick
+    path: /home/brick/brick-api
+    protected: true
+
+  stage:
+    shellCommand: kubectl exec -n brick-staging -it deployment/brick-keystone -- sh -c 'cd /app; exec sh'
+    execTemplate: kubectl exec -n brick-staging deployment/brick-keystone -- sh -c '{%COMMMANDS%}'
+    syncStorageTemplate: "rsync -aur --blocking-io --info=progress2 --delete --rsync-path=./{%PATH%} --rsh=\"$(which kubectl) exec deployment/brick-keystone -i -- \" rsync: ./{%PATH%}"
+
+  self:
+    execTemplate: ssh k.dev.brick.ru@k.dev.brick.ru 'cd /srv/k.dev.brick.ru/domains/api.k.dev.brick.ru/brick-api && {%COMMMANDS%}'
+    shellCommand: ssh -t k.dev.brick.ru@k.dev.brick.ru 'cd /srv/k.dev.brick.ru/domains/api.k.dev.brick.ru/brick-api && exec bash -l'

@@ -6,27 +6,38 @@ import { URL } from "url";
 import dotenv from "dotenv";
 import envsubst from "@tuplo/envsubst";
 import type {SitesSyncConfig } from "../types/config.js"
-import { DbType } from "../types/db.js";
+import { DbAdapterClass, DbAdapterInterface, DbType } from "../types/db.js";
+import { dbAdapterFactory } from "./dbAdapterFactory.js";
 
 const configFilename = "sites-sync.yaml";
+
+const getTimeHumanReadable = function() {
+  const pad = function(num: number) { return ('00'+num).slice(-2) };
+
+  const date = new Date();
+  const dateString =
+    date.getUTCFullYear()        + '-' +
+    pad(date.getUTCMonth() + 1)  + '-' +
+    pad(date.getUTCDate())       + '_' +
+    pad(date.getUTCHours())      + '-' +
+    pad(date.getUTCMinutes())    + '-' +
+    pad(date.getUTCSeconds());
+  return dateString;
+}
 
 const configFileContents = fs.readFileSync(configFilename).toString();
 dotenv.config();
 process.env.TIMESTAMP = Date.now().toString();
+process.env.TIME = getTimeHumanReadable();
 const configFileContentsSubstituted = envsubst(configFileContents);
 export const config = yaml.load(configFileContentsSubstituted) as SitesSyncConfig;
 
-if(config.database.uri) {
-  const dbConnectionUrl = new URL(config.database.uri);
-  config.database = {
-    ...config.database,
-    type: dbConnectionUrl.protocol.slice(0, -1) as DbType,
-    name: dbConnectionUrl.pathname?.substring(1),
-    host: dbConnectionUrl.host || 'localhost',
-    port: dbConnectionUrl.port ? parseInt(dbConnectionUrl.port) : null,
-    username: dbConnectionUrl.username ?? '',
-    password: dbConnectionUrl.password ?? '',
+for (const dbId in config.databases) {
+  const dbConnection = config.databases[dbId];
+  if(!dbConnection.uri) {
+    throw Error(`Database ${dbId} have empty "uri"`);
   }
+  config.databases[dbId].adapter = await dbAdapterFactory(dbConnection);
 }
 
 export const argv = await yargs(hideBin(process.argv))
@@ -39,19 +50,16 @@ export const siteUpstream = config.sites[siteUpstreamId];
 if(!siteUpstream && argv['site'] ) {
   throw Error('Upstream site is not found.');
 }
-const dbType = 'postgresql';
-const dbClass = await import(`./db/${dbType}.js`);
-export const dbAdapter = new dbClass.dbAdapterClass(config.database);
 
-export const getDumpLocation = function() {
-  const dumpLocation = argv['directory'] as string ?? config.dumpLocation;
-  if(!dumpLocation) {
+export const getbackupLocation = function() {
+  const backupLocation = argv['directory'] as string ?? config.backupLocation;
+  if(!backupLocation) {
     throw Error('Dump location is not defined.');
   }
-  if (!fs.existsSync(dumpLocation)){
-    fs.mkdirSync(dumpLocation,{ recursive: true });
+  if (!fs.existsSync(backupLocation)){
+    fs.mkdirSync(backupLocation,{ recursive: true });
   }
-  return dumpLocation;
+  return backupLocation;
 }
 
 export const getTmpFilename = function() {

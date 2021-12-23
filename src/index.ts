@@ -1,78 +1,80 @@
 #!/usr/bin/env -S node --loader ts-node/esm --no-warnings
 
 import yargs from 'yargs';
-import { statSync, unlinkSync } from 'fs';
-import { dbAdapter, getDumpLocation, getTmpFilename, siteUpstreamId } from "./lib/init.js";
-import { restoreDbFromFile, siteExecToFile, siteDbDumpToFile } from './lib/localCommands.js';
-import { siteShell, siteExec } from "./lib/siteCommands.js";
-import prettyBytes from 'pretty-bytes';
+import { siteUpstreamId, config } from "./lib/init.js";
+import { siteShell, siteExec } from "./lib/siteOperations.js";
+import { doDbClear, doDbDump, doDbQuery, doDbsImport, doSiteStoragesSync } from './lib/operations.js';
+import { DbImportOptions } from './types/db.js';
 
-const myYargs = await yargs(process.argv.slice(2))
-    .scriptName('sites-sync')
-    .usage('Usage: $0 <command> [options]')
+const myYargs = yargs(process.argv.slice(2))
+  .scriptName('sites-sync')
+  .usage('Usage: $0 <command> [options]')
 
-    .command(['shell', 'sh', 's'], 'Interactive shell to remote site.', {}, async (argv) => {
-      siteShell();
-      process.exit(0);
-    })
-    .command(['exec', 'e'], 'Execute command on remote site.', {}, async (argv) => {
-      const cmd = argv._[1] as string;
-      siteExec(cmd);
-      process.exit(0)
-    })
-    .command(['import', 'i'], 'Import remote site to current (files and databases).', {}, async (argv) => {
-      throw 'Not yet implemented.';
-      process.exit(0)
-    })
-    .command(['backup', 'b'], 'Make a backup of current site to single file (files and databases).', {}, async (argv) => {
-      throw 'Not yet implemented.';
-      process.exit(0)
-    })
-    .command(['restore', 'r'], 'Restore current site from single file (files and databases).', {}, async (argv) => {
-      throw 'Not yet implemented.';
-      process.exit(0)
-    })
-    .command('db-dump', 'Dump database to output.', {}, async (argv) => {
-      await dbAdapter.dump();
-      process.exit(0)
-    })
-    .command('db-query', 'Execute db query from stdin.', {}, async (argv) => {
-      await dbAdapter.query();
-      process.exit(0)
-    })
-    .command('db-clear', 'Clear current database and fill by SQL commands from stdin.', {}, async (argv) => {
-      await dbAdapter.clear();
-      process.exit(0)
-    })
-    .command('db-import', 'Import database from remote site.', {}, async (argv) => {
-      const tempFile = getTmpFilename();
-      console.log(`Dumping database from remote site '${siteUpstreamId}' to temporary file ${tempFile} ...`);
-      siteDbDumpToFile(tempFile);
-      const {size} = statSync(tempFile);
-      const tempFileSize = prettyBytes(size)
-      console.log(`Remote database dump (${tempFileSize}) downloaded successfully.`);
+  .command(['shell', 'sh', 's'], 'Interactive shell to remote site.', {}, async (argv) => {
+    siteShell();
+    process.exit(0);
+  })
+  .command(['exec', 'e'], 'Execute command on remote site.', {}, async (argv) => {
+    const cmd = argv._[1] as string;
+    siteExec(cmd);
+    process.exit(0)
+  })
+  .command('db-dump', 'Dump database to stdout.', {}, async (argv) => {
+    const dbId = argv._[1] as string ?? Object.keys(config.databases)[0];
+    doDbDump(dbId);
+    process.exit(0)
+  })
+  .command('db-query', 'Execute db query from stdin.', {}, async (argv) => {
+    const dbId = argv._[1] as string ?? Object.keys(config.databases)[0];
+    doDbQuery(dbId);
+    process.exit(0)
+  })
+  .command('db-clear', 'Clear current database.', {}, async (argv) => {
+    const dbId = argv._[1] as string ?? Object.keys(config.databases)[0];
+    doDbClear(dbId);
+    process.exit(0)
+  })
+  .command('db-import', 'Import database dump from stdin.', {}, async (argv) => {
+    const dbId = argv._[1] as string ?? Object.keys(config.databases)[0];
+    doDbClear(dbId);
+    process.exit(0)
+  })
+  .command('db-pull', 'Pull database from remote site.', {}, async (argv) => {
+    const dbImportOptions = {} as DbImportOptions;
+    if(argv.keepFiles) {
+      dbImportOptions.keepFiles = true;
+    }
+    doDbsImport(dbImportOptions);
 
-      console.log(`Clearing local database...`);
-      await dbAdapter.clear();
+    process.exit(0);
+  })
 
-      console.log(`Importing dump locally...`);
-      restoreDbFromFile(tempFile);
+  .command('storage-pull', 'Pull all storages from remote site.', {}, async (argv) => {
+    doSiteStoragesSync();
+    process.exit(0);
+  })
 
-      if (argv.keepFiles ?? false) {
-        console.log(`Skipping remove downloaded files.`);
-      } else {
-        console.log(`Removing downloaded files...`);
-        unlinkSync(tempFile);
-      }
+  .command('pull', 'Pull all databases and storages from remote site.', {}, async (argv) => {
+    doDbsImport();
+    doSiteStoragesSync();
+    console.log(`Import from site "${siteUpstreamId}" successfully completed.`);
+    process.exit(0);
+  })
 
-      console.log(`Database import finished successfully.`);
-      process.exit(0);
-    })
-    .help('h')
-    .alias('h', 'help')
-    .epilog('copyright 2019')
-    ;
+  // .command(['backup', 'b'], 'Make a backup of current site to single file (files and databases).', {}, async (argv) => {
+  //   throw 'Not yet implemented.';
+  //   process.exit(0)
+  // })
+  // .command(['restore', 'r'], 'Restore current site from single file (files and databases).', {}, async (argv) => {
+  //   throw 'Not yet implemented.';
+  //   process.exit(0)
+  // })
 
-const argv = await myYargs.argv;
+  .help('h')
+  .alias('h', 'help')
+  .epilog('Sites-sync tool. (c) Alexey Murz Korepov <MurzNN@gmail.com>')
+  ;
+
+await myYargs.argv;
 
 myYargs.showHelp();

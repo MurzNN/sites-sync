@@ -1,35 +1,32 @@
-import { DbType } from "./db";
+import { DbAdapterClass, DbAdapterInterface, DbCustomParams, DbType } from "./db";
 
 export type SitesSyncConfigSite = {
   execTemplate?: string;
   shellCommand?: string;
-  host?: string;
-  user?: string;
-  path?: string;
+  syncStorageTemplate?: string;
 };
 
 export type SitesSyncConfigDbConnection = {
-  uri?: string;
-  type: DbType;
-  name: string;
-  host: string;
-  port: number | null;
-  username: string;
-  password: string;
-  customParams?: {
-    dump?: string;
-    query?: string;
-  }
+  uri: string;
+  customParams?: DbCustomParams;
+  adapter: DbAdapterInterface;
 }
 
 export type SitesSyncConfig = {
   siteId: string;
   siteUpstreamId: string;
 
-  dumpLocation: string;
+  backupLocation: string;
   tempDirectory: string;
 
-  database: SitesSyncConfigDbConnection;
+  databases: {
+    [key: string]: SitesSyncConfigDbConnection;
+  }
+
+  storages: {
+    [key: string]: string;
+  }
+
   sites: {
     [key: string]: SitesSyncConfigSite;
   }
