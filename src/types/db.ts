@@ -17,10 +17,11 @@ export type DbCustomParams = {
 export interface DbAdapterInterface {
   config: SitesSyncConfigDbConnection;
   connection: DbConnection;
-  dump(execOptions?: ExecSyncOptionsWithBufferEncoding): string|void,
-  query(input?: string|null , execOptions?: ExecSyncOptionsWithBufferEncoding): string|void,
-  restoreFromFile(file: string): void,
-  clear(): void,
+  dump(execOptions?: ExecSyncOptionsWithBufferEncoding): string|void;
+  query(input?: string|null , execOptions?: ExecSyncOptionsWithBufferEncoding): string|void;
+  restoreFromFile(file: string): void;
+  dumpToFile(file: string): void;
+  clear(): void;
 }
 
 export type DbConnection = {

@@ -3,12 +3,26 @@
 import yargs from 'yargs';
 import { siteUpstreamId, config } from "./lib/init.js";
 import { siteShell, siteExec } from "./lib/siteOperations.js";
-import { doDbClear, doDbDump, doDbQuery, doDbsImport, doSiteStoragesSync } from './lib/operations.js';
+import { doDatabaseClear, doDatabaseDump, doDatabaseQuery, doDatabasesBackup, doDatabasesPull, doDatabasesPush, doDatabasesRestore, doDirectoriesBackup, doDirectoriesRestore, doSiteDirectoriesPull, doSiteDirectoriesPush } from './lib/commands.js';
 import { DbImportOptions } from './types/db.js';
+import { DirectoryPath } from './types/config.js';
 
 const myYargs = yargs(process.argv.slice(2))
   .scriptName('sites-sync')
   .usage('Usage: $0 <command> [options]')
+
+  .command(['pull', 'p'], 'Pull databases and directories from remote site.', {}, async (argv) => {
+    doDatabasesPull();
+    doSiteDirectoriesPull();
+    console.log(`Pull from site "${siteUpstreamId}" successfully completed.`);
+    process.exit(0);
+  })
+  .command('push', 'Push databases and directories to remote site.', {}, async (argv) => {
+    doDatabasesPush();
+    doSiteDirectoriesPush();
+    console.log(`Push to site "${siteUpstreamId}" successfully completed.`);
+    process.exit(0);
+  })
 
   .command(['shell', 'sh', 's'], 'Interactive shell to remote site.', {}, async (argv) => {
     siteShell();
@@ -19,24 +33,39 @@ const myYargs = yargs(process.argv.slice(2))
     siteExec(cmd);
     process.exit(0)
   })
+
+  .command(['backup', 'b'], 'Make a backup of current site to backup directory (databases and directories).', {}, async (argv) => {
+    const location = '/tmp/test1/' as DirectoryPath;
+    doDatabasesBackup(location);
+    doDirectoriesBackup(location);
+    process.exit(0)
+  })
+  .command(['restore', 'r'], 'Restore current site from backup directory (databases and directories).', {}, async (argv) => {
+    const location = '/tmp/test1/' as DirectoryPath;
+    doDatabasesRestore(location);
+    doDirectoriesRestore(location);
+    process.exit(0)
+  })
+
+
   .command('db-dump', 'Dump database to stdout.', {}, async (argv) => {
     const dbId = argv._[1] as string ?? Object.keys(config.databases)[0];
-    doDbDump(dbId);
+    doDatabaseDump(dbId);
     process.exit(0)
   })
   .command('db-query', 'Execute db query from stdin.', {}, async (argv) => {
     const dbId = argv._[1] as string ?? Object.keys(config.databases)[0];
-    doDbQuery(dbId);
+    doDatabaseQuery(dbId);
     process.exit(0)
   })
   .command('db-clear', 'Clear current database.', {}, async (argv) => {
     const dbId = argv._[1] as string ?? Object.keys(config.databases)[0];
-    doDbClear(dbId);
+    doDatabaseClear(dbId);
     process.exit(0)
   })
   .command('db-import', 'Import database dump from stdin.', {}, async (argv) => {
     const dbId = argv._[1] as string ?? Object.keys(config.databases)[0];
-    doDbClear(dbId);
+    doDatabaseClear(dbId);
     process.exit(0)
   })
   .command('db-pull', 'Pull database from remote site.', {}, async (argv) => {
@@ -44,31 +73,35 @@ const myYargs = yargs(process.argv.slice(2))
     if(argv.keepFiles) {
       dbImportOptions.keepFiles = true;
     }
-    doDbsImport(dbImportOptions);
-
+    doDatabasesPull(dbImportOptions);
+    process.exit(0);
+  })
+  .command('db-push', 'Push database to remote site.', {}, async (argv) => {
+    const dbImportOptions = {} as DbImportOptions;
+    if(argv.keepFiles) {
+      dbImportOptions.keepFiles = true;
+    }
+    doDatabasesPush();
     process.exit(0);
   })
 
-  .command('storage-pull', 'Pull all storages from remote site.', {}, async (argv) => {
-    doSiteStoragesSync();
+  .command('directory-pull', 'Pull all directories from remote site.', {}, async (argv) => {
+    doSiteDirectoriesPull()
+    process.exit(0);
+  })
+  .command('directory-push', 'Push all directories to remote site.', {}, async (argv) => {
+    doSiteDirectoriesPush()
     process.exit(0);
   })
 
-  .command('pull', 'Pull all databases and storages from remote site.', {}, async (argv) => {
-    doDbsImport();
-    doSiteStoragesSync();
-    console.log(`Import from site "${siteUpstreamId}" successfully completed.`);
+  .command('id', 'Outputs an id of current site.', {}, async (argv) => {
+    console.log(config.siteId);
     process.exit(0);
   })
-
-  // .command(['backup', 'b'], 'Make a backup of current site to single file (files and databases).', {}, async (argv) => {
-  //   throw 'Not yet implemented.';
-  //   process.exit(0)
-  // })
-  // .command(['restore', 'r'], 'Restore current site from single file (files and databases).', {}, async (argv) => {
-  //   throw 'Not yet implemented.';
-  //   process.exit(0)
-  // })
+  .command('upstream', 'Outputs an id of default upstream site.', {}, async (argv) => {
+    console.log(config.siteUpstreamId);
+    process.exit(0);
+  })
 
   .help('h')
   .alias('h', 'help')

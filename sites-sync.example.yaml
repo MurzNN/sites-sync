@@ -39,25 +39,27 @@ databases:
       # different usernames per site
       dump: --no-owner
 
-# Configure storage locations to sync in format:
-# name: location
-storages:
+# List of storage locations to sync in format: "name: path"
+# Path can be relative or absolute.
+directories:
   files: 'public/files'
   images: 'public/images'
 
+# List of remote sites with access credentials and configuration.
 sites:
   dev:
-    shellCommand: ssh -t user@example.com 'cd /home/user/sites/mycoolsite.com && exec bash -l'
-    execTemplate: ssh user@example.com 'cd /home/user/sites/mysite.com && {%COMMMANDS%}'
-    syncStorageTemplate: "rsync -aur --blocking-io --info=progress2 --delete --rsync-path= /home/user/sites/mysite.com/{%PATH%} --rsh=\"ssh user@example.com\" rsync: ./{%PATH%}"
-
-  live:
-    host: mycoolsite.com
-    user: brick
-    path: /home/brick/brick-api
-    protected: true
+    # command to open shell on remote site
+    execCommand: ssh user@mycoolsite.org
+    terminalCommand: ssh -t user@mycoolsite.org
+    # root location of remote site, used to change directory after connection.
+    rootDirectory: '/home/user/mycoolsite.org/'
+    # custom shell to use when connecting.
+    shell: 'bash'
 
   stage:
-    shellCommand: kubectl exec -n mycoolsite-staging -it deployment/mycoolsite -- sh -c 'cd /app; exec sh'
-    execTemplate: kubectl exec -n mycoolsite-staging deployment/mycoolsite -- sh -c '{%COMMMANDS%}'
-    syncStorageTemplate: "rsync -aur --blocking-io --info=progress2 --delete --rsync-path=./{%PATH%} --rsh=\"kubectl exec deployment/mycoolsite -i -- \" rsync: ./{%PATH%}"
+    execCommand: kubectl exec -n mycoolsite-staging -i deployment/mycoolsite
+    terminalCommand: kubectl exec -n mycoolsite-staging -i -t deployment/mycoolsite
+
+  live:
+    execCommand: kubectl exec -n mycoolsite-prod -i deployment/mycoolsite
+    terminalCommand: kubectl exec -n mycoolsite-prod -i -t deployment/mycoolsite

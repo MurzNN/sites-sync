@@ -2,11 +2,9 @@ import fs from "fs";
 import yargs from "yargs";
 import { hideBin } from "yargs/helpers";
 import yaml from "js-yaml";
-import { URL } from "url";
 import dotenv from "dotenv";
 import envsubst from "@tuplo/envsubst";
-import type {SitesSyncConfig } from "../types/config.js"
-import { DbAdapterClass, DbAdapterInterface, DbType } from "../types/db.js";
+import { SitesSyncConfig } from "../types/config.js"
 import { dbAdapterFactory } from "./dbAdapterFactory.js";
 
 const configFilename = "sites-sync.yaml";
@@ -40,12 +38,25 @@ for (const dbId in config.databases) {
   config.databases[dbId].adapter = await dbAdapterFactory(dbConnection);
 }
 
+for (const directoryId in config.directories) {
+  if(config.directories[directoryId].slice(-1) !== '/') {
+    config.directories[directoryId] += '/';
+  }
+}
+
+for (const siteId in config.sites) {
+  if(config.sites[siteId].rootDirectory && config.sites[siteId].rootDirectory?.slice(-1) !== '/') {
+    config.sites[siteId].rootDirectory += '/';
+  }
+}
+
 export const argv = await yargs(hideBin(process.argv))
   .alias('s', 'site')
   .alias('d', 'directory')
   .argv;
 
 export const siteUpstreamId: string = argv['site'] as string ?? config.siteUpstreamId;
+
 export const siteUpstream = config.sites[siteUpstreamId];
 if(!siteUpstream && argv['site'] ) {
   throw Error('Upstream site is not found.');

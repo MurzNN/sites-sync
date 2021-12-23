@@ -1,34 +1,71 @@
 import { execSync } from "child_process";
-import { siteUpstream } from "./init.js";
+import { siteUpstream, siteUpstreamId } from "./init.js";
 
 export function siteExecCommand(cmd: string) {
-  if(!siteUpstream.execTemplate) {
-    throw Error('execTemplate is missing');
+  if (!siteUpstream.execCommand) {
+      throw Error(`execCommand is missing for site "${siteUpstreamId}"`);
   }
-  const siteCmd = siteUpstream.execTemplate.replace(/{%COMMMANDS%}/g, cmd);
+  if(siteUpstream.rootDirectory) {
+    cmd = `cd ${siteUpstream.rootDirectory} && (${cmd})`;
+  }
+  const siteCmd = `${siteUpstream.execCommand} -- ${cmd}`;
   return siteCmd;
 }
-
 export function siteExec(cmd: string, execOptions = undefined, options = undefined) {
-  const result = execSync(siteExecCommand(cmd), execOptions ?? { stdio: "inherit" });
+  const siteCmd = siteExecCommand(cmd)
+  const result = execSync(siteCmd, execOptions ?? { stdio: "inherit" });
   return result;
 }
-
 export function siteShell() {
-  if(!siteUpstream.shellCommand) {
-    throw Error('shellCommand is missing');
-  }
-  const result = execSync(siteUpstream.shellCommand, { stdio: "inherit" });
-  return result;
+  execSync(siteUpstream.terminalCommand, { stdio: "inherit" });
 }
 
-export function siteStorageSync(path: string) {
-  if(!siteUpstream.syncStorageTemplate) {
-    throw Error('syncStorageTemplate is missing for selected site');
-  }
-  // const cmd = siteUpstream.syncFilesCommand;
-  const cmd = siteUpstream.syncStorageTemplate.replace(/{%PATH%}/g, path);
-  const result = execSync(cmd, { stdio: "inherit" });
-  return result;
+export function siteExecToFile(cmd: string, file: string) {
+  const siteCmd = siteExecCommand(cmd);
+  execSync(`${siteCmd} > ${file}`);
 }
 
+export function siteDbImportFromFile(dbId: string, file: string) {
+  const cmd = `gunzip | yarn --silent sites-sync db-query ${dbId}`;
+  const siteCmd = siteExecCommand(cmd);
+  execSync(`cat ${file} | ${siteCmd}`);
+}
+
+export function siteDbQuery(dbId: string) {
+  const cmd = `yarn --silent sites-sync db-query ${dbId}`;
+  siteExec(cmd);
+}
+
+export function siteDbQueryGunzip(dbId: string) {
+  const cmd = `gunzip | yarn --silent sites-sync db-query ${dbId}`;
+  siteExec(cmd);
+}
+
+export function siteDbClear(dbId: string) {
+  const cmd = `yarn --silent sites-sync db-clear ${dbId}`;
+  siteExec(cmd);
+}
+
+export function siteDbDumpToFile(dbId: string, file: string) {
+  const cmd = `yarn --silent sites-sync db-dump ${dbId} | gzip -f`;
+  siteExecToFile(cmd, file);
+}
+
+function rsyncCommand(path: string, direction: 'pull'|'push') {
+  const prefix = `rsync -rlpt --blocking-io --info=progress2 --delete --rsync-path=${siteUpstream.rootDirectory ?? ''}${path} --rsh=\"${siteUpstream.execCommand}\ --"`
+  return prefix + ' '
+    + (direction == 'pull'
+      ? `rsync: ${path}`
+      : `${path} rsync:`
+    );
+}
+
+export function siteDirectoryPull(path: string) {
+  const cmd = rsyncCommand(path, 'pull');
+  execSync(cmd, { stdio: "inherit" });
+}
+
+export function siteDirectoryPush(path: string) {
+  const cmd = rsyncCommand(path, 'push');
+  execSync(cmd, { stdio: "inherit" });
+}

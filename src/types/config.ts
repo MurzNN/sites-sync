@@ -1,9 +1,10 @@
 import { DbAdapterClass, DbAdapterInterface, DbCustomParams, DbType } from "./db";
 
 export type SitesSyncConfigSite = {
-  execTemplate?: string;
-  shellCommand?: string;
-  syncStorageTemplate?: string;
+  execCommand: string;
+  terminalCommand: string;
+  rootDirectory?: string;
+  shell?: string;
 };
 
 export type SitesSyncConfigDbConnection = {
@@ -23,7 +24,7 @@ export type SitesSyncConfig = {
     [key: string]: SitesSyncConfigDbConnection;
   }
 
-  storages: {
+  directories: {
     [key: string]: string;
   }
 
@@ -31,3 +32,6 @@ export type SitesSyncConfig = {
     [key: string]: SitesSyncConfigSite;
   }
 };
+
+export type DirectoryPath = string & {__brand: 'directory'};;
+export type FilePath = string & {__brand: 'file'};

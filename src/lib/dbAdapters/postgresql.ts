@@ -88,14 +88,6 @@ export default class DbAdapter implements DbAdapterInterface {
     return this.exec('dump', null, execOptions);
   }
 
-  public restoreFromFile(file: string) {
-    const dbQueryCommand = this.generateCommand('query');
-    const cmd = `zcat -f ${file} | ${dbQueryCommand}`;
-    // console.log(cmd); throw 123
-    const result = execSync(cmd);
-
-  }
-
   public query(input: string|null = null, execOptions: ExecSyncOptionsWithBufferEncoding = {}) {
     return this.exec('query', input, execOptions);
   }
@@ -126,6 +118,19 @@ END $$;
 `;
 
     this.query(dropAllTablesQuery);
+  }
+
+  public restoreFromFile(file: string) {
+    const dbQueryCommand = this.generateCommand('query');
+    const cmd = `zcat -f ${file} | ${dbQueryCommand}`;
+    const result = execSync(cmd);
+
+  }
+
+  public dumpToFile(file: string) {
+    const dbQueryCommand = this.generateCommand('dump');
+    const cmd = `${dbQueryCommand} | gzip > ${file}`;
+    const result = execSync(cmd);
   }
 
 }
