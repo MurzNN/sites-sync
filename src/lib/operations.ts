@@ -4,7 +4,6 @@ import prettyBytes from "pretty-bytes";
 import { SitesSyncConfigDbConnection } from "../types/config.js";
 import { DbImportOptions } from "../types/db.js";
 import { siteUpstream, siteUpstreamId, config, getTmpFilename } from "./init.js";
-import { restoreDbFromFile } from "./localCommands.js";
 import { siteExecCommand, siteStorageSync } from "./siteOperations.js";
 
 export function doDbDump(dbId: string) {
