@@ -1,5 +1,6 @@
 import { execSync } from "child_process";
 import { siteUpstream, siteUpstreamId } from "./init.js";
+import { checkUtilitesAvailability } from "./utils.js";
 
 export function siteExecCommand(cmd: string) {
   if (!siteUpstream.execCommand) {
@@ -8,10 +9,12 @@ export function siteExecCommand(cmd: string) {
   if(siteUpstream.rootDirectory) {
     cmd = `cd ${siteUpstream.rootDirectory} && (${cmd})`;
   }
-  const siteCmd = `${siteUpstream.execCommand} -- ${cmd}`;
+  cmd = cmd.replace(/'/g, "''");
+  const siteCmd = `${siteUpstream.execCommand} -- sh -c '${cmd}'`;
   return siteCmd;
 }
 export function siteExec(cmd: string, execOptions = undefined, options = undefined) {
+  checkUtilitesAvailability(true);
   const siteCmd = siteExecCommand(cmd)
   const result = execSync(siteCmd, execOptions ?? { stdio: "inherit" });
   return result;
@@ -51,6 +54,8 @@ export function siteDbDumpToFile(dbId: string, file: string) {
   siteExecToFile(cmd, file);
 }
 
+
+
 function rsyncCommand(path: string, direction: 'pull'|'push') {
   const prefix = `rsync -rlpt --blocking-io --info=progress2 --delete --rsync-path=${siteUpstream.rootDirectory ?? ''}${path} --rsh=\"${siteUpstream.execCommand}\ --"`
   return prefix + ' '
@@ -59,6 +64,10 @@ function rsyncCommand(path: string, direction: 'pull'|'push') {
       : `${path} rsync:`
     );
 }
+
+export function siteIsExecutableExists(cmd: string) {
+}
+
 
 export function siteDirectoryPull(path: string) {
   const cmd = rsyncCommand(path, 'pull');

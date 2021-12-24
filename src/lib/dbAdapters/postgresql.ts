@@ -123,6 +123,7 @@ END $$;
   public restoreFromFile(file: string) {
     const dbQueryCommand = this.generateCommand('query');
     const cmd = `zcat -f ${file} | ${dbQueryCommand}`;
+    this.clear();
     const result = execSync(cmd);
 
   }

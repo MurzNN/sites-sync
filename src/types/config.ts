@@ -17,7 +17,11 @@ export type SitesSyncConfig = {
   siteId: string;
   siteUpstreamId: string;
 
-  backupLocation: string;
+  backup: {
+    directory: string;
+    nameFormat: string;
+    keepAmount?: number;
+  }
   tempDirectory: string;
 
   databases: {

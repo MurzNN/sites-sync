@@ -2,10 +2,10 @@
 
 import yargs from 'yargs';
 import { siteUpstreamId, config } from "./lib/init.js";
-import { siteShell, siteExec } from "./lib/siteOperations.js";
+import { siteShell, siteExec } from "./lib/siteUtils.js";
 import { doDatabaseClear, doDatabaseDump, doDatabaseQuery, doDatabasesBackup, doDatabasesPull, doDatabasesPush, doDatabasesRestore, doDirectoriesBackup, doDirectoriesRestore, doSiteDirectoriesPull, doSiteDirectoriesPush } from './lib/commands.js';
 import { DbImportOptions } from './types/db.js';
-import { DirectoryPath } from './types/config.js';
+import { getBackupDirectory, prepareBackupDirectory } from './lib/utils.js';
 
 const myYargs = yargs(process.argv.slice(2))
   .scriptName('sites-sync')
@@ -24,7 +24,7 @@ const myYargs = yargs(process.argv.slice(2))
     process.exit(0);
   })
 
-  .command(['shell', 'sh', 's'], 'Interactive shell to remote site.', {}, async (argv) => {
+  .command(['terminal', 't'], 'Open interactive terminal to remote site.', {}, async (argv) => {
     siteShell();
     process.exit(0);
   })
@@ -35,15 +35,17 @@ const myYargs = yargs(process.argv.slice(2))
   })
 
   .command(['backup', 'b'], 'Make a backup of current site to backup directory (databases and directories).', {}, async (argv) => {
-    const location = '/tmp/test1/' as DirectoryPath;
-    doDatabasesBackup(location);
-    doDirectoriesBackup(location);
+    const backupDirectory = prepareBackupDirectory();
+    doDatabasesBackup(backupDirectory);
+    doDirectoriesBackup(backupDirectory);
     process.exit(0)
   })
   .command(['restore', 'r'], 'Restore current site from backup directory (databases and directories).', {}, async (argv) => {
-    const location = '/tmp/test1/' as DirectoryPath;
-    doDatabasesRestore(location);
-    doDirectoriesRestore(location);
+    const backupDirectoryName = argv._[1] as string ?? undefined;
+    const backupDirectory = getBackupDirectory(backupDirectoryName);
+    console.log(backupDirectory);
+    doDatabasesRestore(backupDirectory);
+    doDirectoriesRestore(backupDirectory);
     process.exit(0)
   })
 

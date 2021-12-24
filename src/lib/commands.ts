@@ -1,11 +1,11 @@
-import { execSync } from "child_process";
 import { statSync, unlinkSync } from "fs";
 import prettyBytes from "pretty-bytes";
 import { DirectoryPath, FilePath } from "../types/config.js";
 import { DbImportOptions } from "../types/db.js";
-import { siteUpstreamId, config, getTmpFilename } from "./init.js";
-import { backupDirectoryToFile, backupFilePath, restoreDirectoryFromFile } from "./localOperations.js";
-import { siteDbClear, siteDbDumpToFile, siteDbImportFromFile, siteDirectoryPull, siteDirectoryPush } from "./siteOperations.js";
+import { siteUpstreamId, config } from "./init.js";
+import { getTmpFilename } from "./utils.js";
+import { backupDirectoryToFile, backupFilePath, restoreDirectoryFromFile } from "./utils.js";
+import { siteDbClear, siteDbDumpToFile, siteDbImportFromFile, siteDirectoryPull, siteDirectoryPush } from "./siteUtils.js";
 
 export function doDatabaseDump(dbId: string) {
   if(!config.databases[dbId]) {
@@ -150,7 +150,7 @@ export function doDirectoriesRestore(backupDirectory: DirectoryPath): void {
 export function doDirectoryRestore(directoryId: string, backupDirectory: DirectoryPath): void {
   const path = config.directories[directoryId] as DirectoryPath;
   const file = backupFilePath('directory', directoryId, backupDirectory);
-  console.log(`Restoring directory "${directoryId}" to archive file "${file}" ...`);
+  console.log(`Restoring directory "${directoryId}" from archive file "${file}" ...`);
   restoreDirectoryFromFile(path, file);
   console.log(`Restoration of directory "${directoryId}" is finished.`);
 }

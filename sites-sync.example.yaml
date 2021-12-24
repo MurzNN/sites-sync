@@ -8,7 +8,6 @@
 # - ${TIME} - current time in human readable format                            #
 ################################################################################
 
-
 # ID of current site. You can use environment variable to set right id per site.
 siteId: ${SITE}
 
@@ -21,6 +20,16 @@ backupLocation: temp/dump-${TIME}
 
 # Location of directory for temporary files
 tempDirectory: /tmp
+
+# Configuration for backup and restore commands
+backup:
+  # Path to directory where to create backups
+  directory: sites-sync-backups/
+  # Format of directory name for each backup archives bundle
+  nameFormat: backup_{%TIME:yyyy-mm-dd_HH-MM-ss%}
+  # Number of directories to keep. Deletion performs on directories with older
+  # modification time. Set to zero or remove to disable auto cleanup feature.
+  keepAmount: 10
 
 # Database access configuration
 databases:

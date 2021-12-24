@@ -10,5 +10,5 @@ fi
 for item in $CANARY_BUILDS; do
   RELEASE="simple-scan@$item"
   echo "Unpublsihing release $RELEASE"
-  echo "npm unpublish $RELEASE"
+  npm unpublish $RELEASE
 done
