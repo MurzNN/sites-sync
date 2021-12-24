@@ -53,7 +53,7 @@ export function backupDirectoryCleanup(): void {
   }
   // We need to use system ls, because node's readdir misses sort by date ability
   let backupsToCleanup =
-    execSync(`ls -1 -tr ${config.backup.directory} | head -n -${config.backup.keep}`)
+    execSync(`ls -1 -tr ${config.backup.directory} | head -n -${config.backup.keepAmount}`)
     .toString()
     .trim()
     .split("\n")
