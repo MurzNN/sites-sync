@@ -81,10 +81,10 @@ export default abstract class dbAdapterAbstract implements DbAdapterInterface {
   }
 
   public cleanup() {
-    if(this.configFile) {
-      unlinkSync(this.configFile);
+    if(this.dbPassFile) {
+      unlinkSync(this.dbPassFile);
     }
-    this.configFile = undefined;
+    this.dbPassFile = undefined;
   }
 
 }
