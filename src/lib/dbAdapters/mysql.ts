@@ -1,39 +1,74 @@
 import { DbAdapterInterface, DbCommandType, DbGenerateCommandOptions } from "../../types/db.js";
 import dbAdapterAbstract from "./dbAdapterAbstract.js";
 import { getTmpFilename } from "../utils.js";
-import { unlinkSync, writeFileSync } from "fs";
-
+import { writeFileSync } from "fs";
 
 export default class MysqlDbAdapter extends dbAdapterAbstract implements DbAdapterInterface {
-  public configFile?: string;
 
-  public getConfigFile(): string {
-    if(!this.configFile) {
-      this.configFile = getTmpFilename();
-      writeFileSync(this.configFile, `[client]
+  public getDbPassFile(): string {
+    if(!this.dbPassFile) {
+      this.dbPassFile = getTmpFilename();
+      writeFileSync(this.dbPassFile, `[client]
 user=${this.connection.username}
 password=${this.connection.password}
 host=${this.connection.host}
 port=${this.connection.port}
 `, {mode: '600'});
     }
-    return this.configFile;
+    return this.dbPassFile;
   }
 
   public generateCommand(type: DbCommandType = "query", options: DbGenerateCommandOptions = {}): string {
-    enum commandType {
+    enum binaryByType {
       "query" = "mysql",
-      "dump" = "mysqldump"
+      "dump" = "mysqldump --single-transaction"
     };
-
-    const command = `${commandType[type]} --defaults-extra-file=${this.getConfigFile()} ${this.connection.dbName}`;
-
+    const binary = this.config.customBinary?.[type] ?? binaryByType[type];
+    const command = `${binary} --defaults-extra-file=${this.getDbPassFile()} ${this.connection.dbName}`;
     return command;
   }
 
-  public cleanup() {
-    if(this.configFile) {
-      unlinkSync(this.configFile);
-    }
+  public getClearDbQuery(): string {
+    return `
+DROP PROCEDURE IF EXISTS drop_all_tables;
+
+DELIMITER $$
+CREATE PROCEDURE drop_all_tables()
+BEGIN
+    DECLARE _done INT DEFAULT FALSE;
+    DECLARE _tableName VARCHAR(255);
+    DECLARE _cursor CURSOR FOR
+        SELECT table_name
+        FROM information_schema.TABLES
+        WHERE table_schema = SCHEMA();
+    DECLARE CONTINUE HANDLER FOR NOT FOUND SET _done = TRUE;
+
+    SET FOREIGN_KEY_CHECKS = 0;
+
+    OPEN _cursor;
+
+    REPEAT FETCH _cursor INTO _tableName;
+
+    IF NOT _done THEN
+        SET @stmt_sql = CONCAT('DROP TABLE ', _tableName);
+        PREPARE stmt1 FROM @stmt_sql;
+        EXECUTE stmt1;
+        DEALLOCATE PREPARE stmt1;
+    END IF;
+
+    UNTIL _done END REPEAT;
+
+    CLOSE _cursor;
+    SET FOREIGN_KEY_CHECKS = 1;
+END$$
+
+DELIMITER ;
+
+call drop_all_tables();
+
+DROP PROCEDURE IF EXISTS drop_all_tables;
+`;
   }
+
+
 }

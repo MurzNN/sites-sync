@@ -7,6 +7,7 @@ import envsubst from "@tuplo/envsubst";
 import { SitesSyncConfig } from "../types/config.js"
 import { dbAdapterFactory } from "./dbAdapterFactory.js";
 import { checkUtilitesAvailability } from "./utils.js";
+import merge from 'lodash.merge';
 
 const configFilename = "sites-sync.yaml";
 
@@ -14,6 +15,10 @@ const configFileContents = fs.readFileSync(configFilename).toString();
 dotenv.config();
 const configFileContentsSubstituted = envsubst(configFileContents);
 export const config = yaml.load(configFileContentsSubstituted) as SitesSyncConfig;
+
+if(config.sites[config.siteId]?.databasesOverride) {
+  config.databases = merge(config.databases,config.sites[config.siteId]?.databasesOverride);
+}
 
 for (const directoryId in config.directories) {
   if(config.directories[directoryId].slice(-1) !== '/') {
@@ -26,7 +31,6 @@ for (const siteId in config.sites) {
     config.sites[siteId].rootDirectory += '/';
   }
 }
-
 export const argv = await yargs(hideBin(process.argv))
   .alias('s', 'site')
   .alias('d', 'directory')

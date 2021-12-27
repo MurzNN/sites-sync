@@ -5,11 +5,13 @@ export type SitesSyncConfigSite = {
   terminalCommand: string;
   rootDirectory?: string;
   shell?: string;
+  databasesOverride?: SitesSyncConfigDbConnection;
 };
 
 export type SitesSyncConfigDbConnection = {
   uri: string;
   customParams?: DbCustomParams;
+  customBinary?: DbCustomParams;
   adapter: DbAdapterInterface;
 }
 

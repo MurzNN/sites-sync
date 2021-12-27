@@ -8,7 +8,7 @@ import { unlinkSync } from "fs";
 
 
 export default abstract class dbAdapterAbstract implements DbAdapterInterface {
-  public configFile?: string;
+  public dbPassFile?: string;
   public connection: DbConnection;
   public customParams: DbCustomParams | undefined;
 
@@ -41,7 +41,6 @@ export default abstract class dbAdapterAbstract implements DbAdapterInterface {
     }
 
     const cmd = this.generateCommand(type);
-
     const result = execSync(cmd, options);
     if(result) {
       return result.toString();
@@ -60,38 +59,16 @@ export default abstract class dbAdapterAbstract implements DbAdapterInterface {
     return result;
   }
 
-  clear() {
-    const dropAllTablesQuery = `
--- Dropping all tables from database
+  public abstract getClearDbQuery(): string;
 
-SET client_min_messages TO ERROR;
-DO $$ DECLARE
-r RECORD;
-BEGIN
-FOR r IN (SELECT tablename FROM pg_tables WHERE schemaname = current_schema()) LOOP
-    EXECUTE 'DROP TABLE IF EXISTS ' || quote_ident(r.tablename) || ' CASCADE';
-END LOOP;
-END $$;
-
-
--- Dropping all sequences from database
-
-DO $$ DECLARE
-    r RECORD;
-BEGIN
-    FOR r IN (SELECT relname FROM pg_class where relkind = 'S') LOOP
-        EXECUTE 'DROP SEQUENCE IF EXISTS ' || quote_ident(r.relname) || ' CASCADE';
-    END LOOP;
-END $$;
-`;
-
-    this.query(dropAllTablesQuery);
+  public clear() {
+    this.query(this.getClearDbQuery());
   }
 
   public restoreFromFile(file: string) {
+    this.clear();
     const dbQueryCommand = this.generateCommand('query');
     const cmd = `zcat -f ${file} | ${dbQueryCommand}`;
-    this.clear();
     const result = execSync(cmd);
     this.cleanup()
   }
