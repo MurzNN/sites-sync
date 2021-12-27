@@ -5,6 +5,7 @@ export type SitesSyncConfigSite = {
   terminalCommand: string;
   rootDirectory?: string;
   shell?: string;
+  quoteCommands?: boolean;
   databasesOverride?: SitesSyncConfigDbConnection;
 };
 

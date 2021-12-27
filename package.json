@@ -1,6 +1,6 @@
 {
   "name": "sites-sync",
-  "version": "0.2.0-canary.11",
+  "version": "0.2.0-canary.12",
   "description": "Tools for automate sync of dynamic data (content like database and files) between sites via ssh or kubectl.",
   "main": "dist/index.js",
   "license": "MIT",

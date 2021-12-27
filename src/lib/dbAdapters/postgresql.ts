@@ -13,7 +13,7 @@ export default class PostgresqlDbAdapter extends dbAdapterAbstract implements Db
     return this.dbPassFile;
   }
 
-  public generateCommand(type: DbCommandType = "query", options: DbGenerateCommandOptions): string {
+  public generateCommand(type: DbCommandType = "query", options: DbGenerateCommandOptions = {}): string {
 
     enum commandType {
       "query" = "psql",
@@ -22,7 +22,7 @@ export default class PostgresqlDbAdapter extends dbAdapterAbstract implements Db
 
     const cmdArguments:Array<string> = [];
     if(type == 'query' && !options.verbose) {
-      cmdArguments.push('--quet');
+      cmdArguments.push('--quiet');
     }
     if(this.config.customParams?.[type]) {
       cmdArguments.push(this.config.customParams?.[type] ?? '');

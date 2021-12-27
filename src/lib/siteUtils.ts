@@ -10,7 +10,16 @@ export function siteExecCommand(cmd: string) {
     cmd = `cd ${siteUpstream.rootDirectory} && (${cmd})`;
   }
   cmd = cmd.replace(/'/g, "''");
-  const siteCmd = `${siteUpstream.execCommand} -- sh -c '${cmd}'`;
+
+  let siteCmd;
+  if(siteUpstream.quoteCommands) {
+    cmd = cmd.replace(/"/g, "\\\"");
+    siteCmd = `${siteUpstream.execCommand} -- "sh -c '${cmd}'"`;
+  } else {
+    siteCmd = `${siteUpstream.execCommand} -- sh -c '${cmd}'`;
+  }
+
+  // console.log(siteCmd);throw 354
   return siteCmd;
 }
 export function siteExec(cmd: string, execOptions = undefined, options = undefined) {
@@ -19,8 +28,15 @@ export function siteExec(cmd: string, execOptions = undefined, options = undefin
   const result = execSync(siteCmd, execOptions ?? { stdio: "inherit" });
   return result;
 }
-export function siteShell() {
-  execSync(siteUpstream.terminalCommand, { stdio: "inherit" });
+export function siteTerminal() {
+  let cmd = siteUpstream.terminalCommand;
+  const shell = siteUpstream.shell ?? 'sh'
+  if(siteUpstream.rootDirectory) {
+    cmd += ` "cd ${siteUpstream.rootDirectory} && ${shell}"`
+  } else {
+    cmd += ` ${shell}`;
+  }
+  execSync(cmd, { stdio: "inherit" });
 }
 
 export function siteExecToFile(cmd: string, file: string) {

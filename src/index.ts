@@ -2,7 +2,7 @@
 
 import yargs from 'yargs';
 import { siteUpstreamId, config } from "./lib/config.js";
-import { siteShell, siteExec } from "./lib/siteUtils.js";
+import { siteTerminal, siteExec } from "./lib/siteUtils.js";
 import { doDatabaseClear, doDatabaseDump, doDatabaseQuery, doDatabasesBackup, doDatabasesPull, doDatabasesPush, doDatabasesRestore, doDirectoriesBackup, doDirectoriesRestore, doSiteDirectoriesPull, doSiteDirectoriesPush } from './lib/commands.js';
 import { DbImportOptions } from './types/db.js';
 import { backupDirectoryDeleteAll, getBackupDirectory, prepareBackupDirectory } from './lib/utils.js';
@@ -25,7 +25,7 @@ const myYargs = yargs(process.argv.slice(2))
   })
 
   .command(['terminal', 't'], 'Open interactive terminal to remote site.', {}, async (argv) => {
-    siteShell();
+    siteTerminal();
     process.exit(0);
   })
   .command(['exec', 'e'], 'Execute command on remote site.', {}, async (argv) => {
