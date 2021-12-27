@@ -21,10 +21,15 @@ port=${this.connection.port}
   public generateCommand(type: DbCommandType = "query", options: DbGenerateCommandOptions = {}): string {
     enum binaryByType {
       "query" = "mysql",
-      "dump" = "mysqldump --single-transaction"
+      "dump" = "mysqldump"
     };
     const binary = this.config.customBinary?.[type] ?? binaryByType[type];
-    const command = `${binary} --defaults-extra-file=${this.getDbPassFile()} ${this.connection.dbName}`;
+
+    const cmdArguments:Array<string> = [];
+    if(type == 'dump') {
+      cmdArguments.push('--single-transaction');
+    }
+    const command = `${binary} --defaults-extra-file=${this.getDbPassFile()} ${cmdArguments.join(' ')} ${this.connection.dbName}`;
     return command;
   }
 

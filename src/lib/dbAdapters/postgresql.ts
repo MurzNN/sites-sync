@@ -20,15 +20,15 @@ export default class PostgresqlDbAdapter extends dbAdapterAbstract implements Db
       "dump" = "pg_dump"
     };
 
-    const pgOptions = [];
+    const cmdArguments:Array<string> = [];
     if(type == 'query' && !options.verbose) {
-      pgOptions.push('--quet');
+      cmdArguments.push('--quet');
     }
     if(this.config.customParams?.[type]) {
-      pgOptions.push(this.config.customParams?.[type]);
+      cmdArguments.push(this.config.customParams?.[type] ?? '');
     }
 
-    let command: string =`PGPASSFILE=${this.getConfigFile()} ${commandType[type]} ${pgOptions.join(" ")} ${this.connection.dbName}`;
+    let command: string =`PGPASSFILE=${this.getConfigFile()} ${commandType[type]} ${cmdArguments.join(" ")} ${this.connection.dbName}`;
 
     return command;
   }
