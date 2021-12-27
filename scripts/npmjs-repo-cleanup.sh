@@ -8,7 +8,7 @@ if [ -z "$CANARY_BUILDS" ]; then
 fi
 
 for item in $CANARY_BUILDS; do
-  RELEASE="simple-scan@$item"
+  RELEASE="sites-sync@$item"
   echo "Unpublsihing release $RELEASE"
   npm unpublish $RELEASE
 done
