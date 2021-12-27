@@ -1,7 +1,7 @@
 import { execSync } from "child_process";
 import { emptyDirSync } from "fs-extra";
 import { DirectoryPath, FilePath } from "../types/config.js";
-import { config, siteUpstreamId } from "./init.js";
+import { config, siteUpstreamId } from "./config.js";
 import dateFormat from "dateformat";
 import { existsSync, mkdirSync, readdir, readdirSync, rmSync } from "fs";
 import { siteExec } from "./siteUtils.js";
@@ -62,6 +62,26 @@ export function backupDirectoryCleanup(): void {
   for (const backupToCleanup of backupsToCleanup) {
     const path = `${BackupDirectory}${backupToCleanup}`
     console.log(`Removing old backup directory: ${path}`);
+    rmSync(path, { recursive: true, force: true });
+  }
+}
+
+export function backupDirectoryDeleteAll(): void {
+  const BackupDirectory = prepareDirectoryPath(config.backup.directory);
+  if((config.backup.keepAmount ?? 0) < 1) {
+    return;
+  }
+  // We need to use system ls, because node's readdir misses sort by date ability
+  let backupsToCleanup =
+    execSync(`ls -1 -tr ${config.backup.directory}`)
+    .toString()
+    .trim()
+    .split("\n")
+    .filter(n => n);
+
+  for (const backupToCleanup of backupsToCleanup) {
+    const path = `${BackupDirectory}${backupToCleanup}`
+    console.log(`Removing backup directory: ${path}`);
     rmSync(path, { recursive: true, force: true });
   }
 }

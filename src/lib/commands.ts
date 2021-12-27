@@ -2,30 +2,31 @@ import { statSync, unlinkSync } from "fs";
 import prettyBytes from "pretty-bytes";
 import { DirectoryPath, FilePath } from "../types/config.js";
 import { DbImportOptions } from "../types/db.js";
-import { siteUpstreamId, config } from "./init.js";
+import { siteUpstreamId, config } from "./config.js";
 import { getTmpFilename } from "./utils.js";
 import { backupDirectoryToFile, backupFilePath, restoreDirectoryFromFile } from "./utils.js";
 import { siteDbClear, siteDbDumpToFile, siteDbImportFromFile, siteDirectoryPull, siteDirectoryPush } from "./siteUtils.js";
+import { dbAdapters } from "./dbAdapters.js";
 
 export function doDatabaseDump(dbId: string) {
   if(!config.databases[dbId]) {
     throw Error(`Database with id ${dbId} not found in config`);
   }
-  config.databases[dbId].adapter.dump();
+  dbAdapters[dbId].dump();
 }
 
 export function doDatabaseQuery(dbId: string, query: string|null = null) {
   if(!config.databases[dbId]) {
     throw Error(`Database with id ${dbId} not found in config`);
   }
-  config.databases[dbId].adapter.query(query);
+  dbAdapters[dbId].query(query);
 
 }
 export function doDatabaseClear(dbId: string) {
   if(!config.databases[dbId]) {
     throw Error(`Database with id ${dbId} not found in config`);
   }
-  config.databases[dbId].adapter.clear();
+  dbAdapters[dbId].clear();
 }
 
 export function doDatabasesPull(options: DbImportOptions = {}) {
@@ -35,7 +36,7 @@ export function doDatabasesPull(options: DbImportOptions = {}) {
 }
 
 export function doDatabasePull(dbId: string, options: DbImportOptions = {}) {
-  const dbAdapter = config.databases[dbId].adapter;
+  const dbAdapter = dbAdapters[dbId];
   const tempFile = getTmpFilename();
   console.log(`Dumping database "${dbId}" from remote site "${siteUpstreamId}" to temporary file ${tempFile} ...`);
   siteDbDumpToFile(dbId, tempFile);
@@ -65,7 +66,7 @@ export function doDatabasesPush(options: DbImportOptions = {}) {
 }
 
 export function doDatabasePush(dbId: string, options: DbImportOptions = {}) {
-  const dbAdapter = config.databases[dbId].adapter;
+  const dbAdapter = dbAdapters[dbId];
   const tempFile = getTmpFilename();
   console.log(`Dumping local database "${dbId}" to temporary file ${tempFile} ...`);
   dbAdapter.dumpToFile(tempFile);
@@ -84,9 +85,11 @@ export function doDatabasePush(dbId: string, options: DbImportOptions = {}) {
 export function doDatabasesBackup(backupDirectory: DirectoryPath): void {
   for (const dbId in config.databases) {
     const file = backupFilePath('database', dbId, backupDirectory);
-    console.log(`Backing up database "${dbId}" to file "${siteUpstreamId}" ...`);
+    console.log(`Backing up database "${dbId}" to file "${file}" ...`);
     doDatabaseBackup(dbId, file);
-    console.log(`Database "${dbId}" backup is finished.`);
+    const {size} = statSync(file);
+    const fileSize = prettyBytes(size)
+    console.log(`Database "${dbId}" is backed up to file ${file} (${fileSize}).`);
   }
 }
 
@@ -94,7 +97,7 @@ export function doDatabaseBackup(dbId: string, file: FilePath): void {
   if(!config.databases[dbId]) {
     throw Error(`Database with id ${dbId} not found in config`);
   }
-  config.databases[dbId].adapter.dumpToFile(file);
+  dbAdapters[dbId].dumpToFile(file);
 }
 
 export function doDatabasesRestore(backupDirectory: DirectoryPath): void {
@@ -108,7 +111,7 @@ export function doDatabaseRestore(dbId: string, file: FilePath): void {
   if(!config.databases[dbId]) {
     throw Error(`Database with id ${dbId} not found in config`);
   }
-  config.databases[dbId].adapter.restoreFromFile(file);
+  dbAdapters[dbId].restoreFromFile(file);
 }
 
 export function doSiteDirectoriesPull() {

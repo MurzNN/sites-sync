@@ -26,13 +26,17 @@ export interface DbAdapterInterface {
 
 export type DbConnection = {
   type: DbType;
-  name: string;
   host: string;
   port: number | null;
   username: string;
   password: string;
+  dbName: string;
 }
 
 export type DbImportOptions = {
   keepFiles?: boolean;
+}
+
+export type DbGenerateCommandOptions = {
+  verbose?: boolean;
 }

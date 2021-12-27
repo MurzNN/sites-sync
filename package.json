@@ -1,6 +1,6 @@
 {
   "name": "sites-sync",
-  "version": "0.2.0-canary.7",
+  "version": "0.2.0-canary.8",
   "description": "Tools for automate sync of dynamic data (content like database and files) between sites via ssh or kubectl.",
   "main": "dist/index.js",
   "license": "MIT",
@@ -24,10 +24,12 @@
     "url": "http://korepov.pro"
   },
   "bin": {
-    "sites-sync": "sites-sync"
+    "sites-sync": "sites-sync",
+    "ss": "sites-sync"
   },
   "scripts": {
-    "sites-sync": "./sites-sync"
+    "sites-sync": "./sites-sync",
+    "ss": "./sites-sync"
   },
   "dependencies": {
     "@tuplo/envsubst": "^1.13.0",
@@ -36,8 +38,7 @@
     "fs-extra": "^10.0.0",
     "js-yaml": "^4.0.0",
     "pretty-bytes": "^5.5.0",
-    "yargs": "^16.2.0",
-    "yargs-unparser": "^2.0.0"
+    "yargs": "^16.2.0"
   },
   "devDependencies": {
     "@types/dateformat": "^5.0.0",

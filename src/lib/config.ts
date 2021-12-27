@@ -15,14 +15,6 @@ dotenv.config();
 const configFileContentsSubstituted = envsubst(configFileContents);
 export const config = yaml.load(configFileContentsSubstituted) as SitesSyncConfig;
 
-for (const dbId in config.databases) {
-  const dbConnection = config.databases[dbId];
-  if(!dbConnection.uri) {
-    throw Error(`Database ${dbId} have empty "uri"`);
-  }
-  config.databases[dbId].adapter = await dbAdapterFactory(dbConnection);
-}
-
 for (const directoryId in config.directories) {
   if(config.directories[directoryId].slice(-1) !== '/') {
     config.directories[directoryId] += '/';
@@ -48,4 +40,3 @@ if(!siteUpstream && argv['site'] ) {
 }
 
 checkUtilitesAvailability();
-

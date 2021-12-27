@@ -1,11 +1,11 @@
 #!/usr/bin/env -S node --loader ts-node/esm --no-warnings
 
 import yargs from 'yargs';
-import { siteUpstreamId, config } from "./lib/init.js";
+import { siteUpstreamId, config } from "./lib/config.js";
 import { siteShell, siteExec } from "./lib/siteUtils.js";
 import { doDatabaseClear, doDatabaseDump, doDatabaseQuery, doDatabasesBackup, doDatabasesPull, doDatabasesPush, doDatabasesRestore, doDirectoriesBackup, doDirectoriesRestore, doSiteDirectoriesPull, doSiteDirectoriesPush } from './lib/commands.js';
 import { DbImportOptions } from './types/db.js';
-import { getBackupDirectory, prepareBackupDirectory } from './lib/utils.js';
+import { backupDirectoryDeleteAll, getBackupDirectory, prepareBackupDirectory } from './lib/utils.js';
 
 const myYargs = yargs(process.argv.slice(2))
   .scriptName('sites-sync')
@@ -46,6 +46,10 @@ const myYargs = yargs(process.argv.slice(2))
     console.log(backupDirectory);
     doDatabasesRestore(backupDirectory);
     doDirectoriesRestore(backupDirectory);
+    process.exit(0)
+  })
+  .command(['delete-backups'], 'Delete all backups from backup directory', {}, async (argv) => {
+    backupDirectoryDeleteAll();
     process.exit(0)
   })
 

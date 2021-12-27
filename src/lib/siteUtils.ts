@@ -1,5 +1,5 @@
 import { execSync } from "child_process";
-import { siteUpstream, siteUpstreamId } from "./init.js";
+import { siteUpstream, siteUpstreamId } from "./config.js";
 import { checkUtilitesAvailability } from "./utils.js";
 
 export function siteExecCommand(cmd: string) {
