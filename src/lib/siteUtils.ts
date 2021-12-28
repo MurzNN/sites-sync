@@ -1,6 +1,5 @@
 import { execSync } from "child_process";
 import { siteUpstream, siteUpstreamId } from "./config.js";
-import { checkUtilitesAvailability } from "./utils.js";
 
 export function siteExecCommand(cmd: string) {
   if (!siteUpstream.execCommand) {
@@ -27,7 +26,6 @@ export function siteExec(
   execOptions = undefined,
   options = undefined
 ) {
-  checkUtilitesAvailability(true);
   const siteCmd = siteExecCommand(cmd);
   const result = execSync(siteCmd, execOptions ?? { stdio: "inherit" });
   return result;

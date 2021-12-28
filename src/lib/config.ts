@@ -6,7 +6,6 @@ import dotenv from "dotenv";
 import envsubst from "@tuplo/envsubst";
 import { SitesSyncConfig } from "../types/config.js";
 import { dbAdapterFactory } from "./dbAdapterFactory.js";
-import { checkUtilitesAvailability } from "./utils.js";
 import merge from "lodash.merge";
 
 const configFilename = "sites-sync.yaml";
@@ -54,4 +53,10 @@ if (!siteUpstream && argv["site"]) {
   throw Error("Upstream site is not found.");
 }
 
-// checkUtilitesAvailability();
+export function destructiveOperationCheck(siteId?: string) {
+  const siteTocheck = siteId ? config.sites[siteId] : config.siteCurrent;
+  if (siteTocheck?.disableDestructiveOperations) {
+    console.error(`Destructive operations are disabled on site ${siteId}!`);
+    process.exit(1);
+  }
+}
