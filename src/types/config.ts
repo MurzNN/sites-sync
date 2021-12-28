@@ -22,6 +22,11 @@ export type SitesSyncConfigDbConnection = {
   adapter: DbAdapterInterface;
 };
 
+export type SitesSyncConfigHook = {
+  before?: string;
+  after?: string;
+};
+
 export type SitesSyncConfig = {
   siteId: string;
   siteUpstreamId: string;
@@ -39,6 +44,10 @@ export type SitesSyncConfig = {
 
   directories: {
     [key: string]: string;
+  };
+
+  commandHooks: {
+    [key: string]: SitesSyncConfigHook;
   };
 
   sites: {

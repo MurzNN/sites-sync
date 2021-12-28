@@ -1,6 +1,6 @@
 {
   "name": "sites-sync",
-  "version": "0.2.0-canary.22",
+  "version": "0.2.0-canary.23",
   "description": "Tools for automate sync of dynamic data (content like database and files) between sites via ssh or kubectl.",
   "main": "dist/index.js",
   "license": "MIT",
@@ -39,7 +39,7 @@
     "js-yaml": "^4.0.0",
     "lodash.merge": "^4.6.2",
     "pretty-bytes": "^5.5.0",
-    "yargs": "^16.2.0"
+    "yargs": "^17.3"
   },
   "devDependencies": {
     "@types/dateformat": "^5.0.0",

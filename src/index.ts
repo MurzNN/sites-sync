@@ -22,10 +22,32 @@ import {
   getBackupDirectory,
   prepareBackupDirectory,
 } from "./lib/utils.js";
+import { execSync } from "child_process";
+import { readFileSync } from "fs";
+
+function getVersion() {
+  const packageJson = JSON.parse(
+    readFileSync(new URL("../package.json", import.meta.url)).toString()
+  );
+  return packageJson.version;
+}
 
 const myYargs = yargs(process.argv.slice(2))
   .scriptName("sites-sync")
   .usage("Usage: $0 <command> [options]")
+
+  .middleware(function (argv) {
+    if (!argv._[0]) return;
+    const commandMain = argv._[0];
+    if (config.commandHooks?.[commandMain]?.before) {
+      const cmd = config.commandHooks?.[commandMain]?.before as string;
+      console.log(
+        `Executing "before" hook for command "${commandMain}": ${cmd}`
+      );
+      execSync(cmd, { stdio: "inherit" });
+      console.log(`"before" hook executing finished.`);
+    }
+  })
 
   .command(
     ["pull", "p"],
@@ -166,8 +188,10 @@ const myYargs = yargs(process.argv.slice(2))
   )
 
   .command("id", "Outputs an id of current site.", {}, async (argv) => {
+    console.log("sleeping");
+    await new Promise((f) => setTimeout(f, 2000));
     console.log(config.siteId);
-    process.exit(0);
+    // process.exit(0);
   })
   .command(
     "upstream",
@@ -178,10 +202,15 @@ const myYargs = yargs(process.argv.slice(2))
       process.exit(0);
     }
   )
-
+  .strict()
   .help("h")
   .alias("h", "help")
-  .epilog("Sites-sync tool. (c) Alexey Murz Korepov <MurzNN@gmail.com>");
-await myYargs.argv;
+  .epilog(
+    `Sites-sync version ${getVersion()}. (c) Alexey Murz Korepov <MurzNN@gmail.com>`
+  );
 
-myYargs.showHelp();
+const argv = await myYargs.parseAsync();
+
+if (argv._.length == 0) {
+  myYargs.showHelp();
+}
