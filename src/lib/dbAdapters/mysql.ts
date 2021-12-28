@@ -1,35 +1,50 @@
-import { DbAdapterInterface, DbCommandType, DbGenerateCommandOptions } from "../../types/db.js";
+import {
+  DbAdapterInterface,
+  DbCommandType,
+  DbGenerateCommandOptions,
+} from "../../types/db.js";
 import dbAdapterAbstract from "./dbAdapterAbstract.js";
 import { getTmpFilename } from "../utils.js";
 import { writeFileSync } from "fs";
 
-export default class MysqlDbAdapter extends dbAdapterAbstract implements DbAdapterInterface {
-
+export default class MysqlDbAdapter
+  extends dbAdapterAbstract
+  implements DbAdapterInterface
+{
   public getDbPassFile(): string {
-    if(!this.dbPassFile) {
+    if (!this.dbPassFile) {
       this.dbPassFile = getTmpFilename();
-      writeFileSync(this.dbPassFile, `[client]
+      writeFileSync(
+        this.dbPassFile,
+        `[client]
 user=${this.connection.username}
 password=${this.connection.password}
 host=${this.connection.host}
 port=${this.connection.port}
-`, {mode: '600'});
+`,
+        { mode: "600" }
+      );
     }
     return this.dbPassFile;
   }
 
-  public generateCommand(type: DbCommandType = "query", options: DbGenerateCommandOptions = {}): string {
+  public generateCommand(
+    type: DbCommandType = "query",
+    options: DbGenerateCommandOptions = {}
+  ): string {
     enum binaryByType {
       "query" = "mysql",
-      "dump" = "mysqldump"
-    };
+      "dump" = "mysqldump",
+    }
     const binary = this.config.customBinary?.[type] ?? binaryByType[type];
 
-    const cmdArguments:Array<string> = [];
-    if(type == 'dump') {
-      cmdArguments.push('--single-transaction');
+    const cmdArguments: Array<string> = [];
+    if (type == "dump") {
+      cmdArguments.push("--single-transaction");
     }
-    const command = `${binary} --defaults-extra-file=${this.getDbPassFile()} ${cmdArguments.join(' ')} ${this.connection.dbName}`;
+    const command = `${binary} --defaults-extra-file=${this.getDbPassFile()} ${cmdArguments.join(
+      " "
+    )} ${this.connection.dbName}`;
     return command;
   }
 
@@ -74,6 +89,4 @@ call drop_all_tables();
 DROP PROCEDURE IF EXISTS drop_all_tables;
 `;
   }
-
-
 }

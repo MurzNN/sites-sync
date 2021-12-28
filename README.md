@@ -1,10 +1,12 @@
 # sites-sync
+
 Tools for automate sync of dynamic data (content like database and files) between sites as npm js package.
 
 To configure list of sites you must copy a `node_modules/sites-sync/sites-sync.example.yaml` file
 to `sites-sync.yaml` in root of your project, describe database access and commands to access sites.
 
 ## Usage
+
 ```
 Usage: sites-sync <command> [options]
 

@@ -1,38 +1,51 @@
-import { DbAdapterInterface, DbCommandType, DbGenerateCommandOptions } from "../../types/db.js";
+import {
+  DbAdapterInterface,
+  DbCommandType,
+  DbGenerateCommandOptions,
+} from "../../types/db.js";
 import dbAdapterAbstract from "./dbAdapterAbstract.js";
 import { getTmpFilename } from "../utils.js";
 import { writeFileSync } from "fs";
 
-export default class PostgresqlDbAdapter extends dbAdapterAbstract implements DbAdapterInterface {
-
+export default class PostgresqlDbAdapter
+  extends dbAdapterAbstract
+  implements DbAdapterInterface
+{
   public getConfigFile(): string {
-    if(!this.dbPassFile) {
+    if (!this.dbPassFile) {
       this.dbPassFile = getTmpFilename();
-      writeFileSync(this.dbPassFile, `${this.connection.host}:${this.connection.port}:${this.connection.dbName}:${this.connection.username}:${this.connection.password}`, {mode: '600'});
+      writeFileSync(
+        this.dbPassFile,
+        `${this.connection.host}:${this.connection.port}:${this.connection.dbName}:${this.connection.username}:${this.connection.password}`,
+        { mode: "600" }
+      );
     }
     return this.dbPassFile;
   }
 
-  public generateCommand(type: DbCommandType = "query", options: DbGenerateCommandOptions = {}): string {
-
+  public generateCommand(
+    type: DbCommandType = "query",
+    options: DbGenerateCommandOptions = {}
+  ): string {
     enum commandType {
       "query" = "psql",
-      "dump" = "pg_dump"
-    };
-
-    const cmdArguments:Array<string> = [];
-    if(type == 'query' && !options.verbose) {
-      cmdArguments.push('--quiet');
-    }
-    if(this.config.customParams?.[type]) {
-      cmdArguments.push(this.config.customParams?.[type] ?? '');
+      "dump" = "pg_dump",
     }
 
-    let command: string =`PGPASSFILE=${this.getConfigFile()} ${commandType[type]} ${cmdArguments.join(" ")} ${this.connection.dbName}`;
+    const cmdArguments: Array<string> = [];
+    if (type == "query" && !options.verbose) {
+      cmdArguments.push("--quiet");
+    }
+    if (this.config.customParams?.[type]) {
+      cmdArguments.push(this.config.customParams?.[type] ?? "");
+    }
+
+    let command: string = `PGPASSFILE=${this.getConfigFile()} ${
+      commandType[type]
+    } ${cmdArguments.join(" ")} ${this.connection.dbName}`;
 
     return command;
   }
-
 
   getClearDbQuery() {
     return `

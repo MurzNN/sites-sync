@@ -2,7 +2,7 @@ name: Publish Canary builds to npmjs
 on:
   push:
     paths:
-      - 'package.json'
+      - "package.json"
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -11,9 +11,10 @@ jobs:
       # Setup .npmrc file to publish to npm
       - uses: actions/setup-node@v2
         with:
-          node-version: '14.x'
-          registry-url: 'https://registry.npmjs.org'
+          node-version: "14.x"
+          registry-url: "https://registry.npmjs.org"
       - run: yarn install --immutable --immutable-cache --check-cache
+      - run: prettier --check .
       - run: tsc -p ./tsconfig.prod.json
       - run: ./scripts/npmjs-repo-cleanup.sh
         env:

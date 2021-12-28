@@ -1,24 +1,26 @@
 import { ExecSyncOptionsWithBufferEncoding } from "child_process";
 import { SitesSyncConfigDbConnection } from "./config";
 
-export type DbType = 'postgresql' | 'mongodb';
+export type DbType = "postgresql" | "mongodb";
 
-export type DbCommandType = 'query' | 'dump';
-
+export type DbCommandType = "query" | "dump";
 
 export type DbAdapterClass = {
   dbAdapter: DbAdapterInterface;
-}
+};
 export type DbCustomParams = {
-    dump?: string;
-    query?: string;
-}
+  dump?: string;
+  query?: string;
+};
 
 export interface DbAdapterInterface {
   config: SitesSyncConfigDbConnection;
   connection: DbConnection;
-  dump(execOptions?: ExecSyncOptionsWithBufferEncoding): string|void;
-  query(input?: string|null , execOptions?: ExecSyncOptionsWithBufferEncoding): string|void;
+  dump(execOptions?: ExecSyncOptionsWithBufferEncoding): string | void;
+  query(
+    input?: string | null,
+    execOptions?: ExecSyncOptionsWithBufferEncoding
+  ): string | void;
   restoreFromFile(file: string): void;
   dumpToFile(file: string): void;
   clear(): void;
@@ -31,12 +33,12 @@ export type DbConnection = {
   username: string;
   password: string;
   dbName: string;
-}
+};
 
 export type DbImportOptions = {
   keepFiles?: boolean;
-}
+};
 
 export type DbGenerateCommandOptions = {
   verbose?: boolean;
-}
+};

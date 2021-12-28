@@ -1,4 +1,9 @@
-import { DbAdapterClass, DbAdapterInterface, DbCustomParams, DbType } from "./db";
+import {
+  DbAdapterClass,
+  DbAdapterInterface,
+  DbCustomParams,
+  DbType,
+} from "./db";
 
 export type SitesSyncConfigSite = {
   execCommand: string;
@@ -7,6 +12,7 @@ export type SitesSyncConfigSite = {
   shell?: string;
   quoteCommands?: boolean;
   databasesOverride?: SitesSyncConfigDbConnection;
+  disableDestructiveOperations?: boolean;
 };
 
 export type SitesSyncConfigDbConnection = {
@@ -14,7 +20,7 @@ export type SitesSyncConfigDbConnection = {
   customParams?: DbCustomParams;
   customBinary?: DbCustomParams;
   adapter: DbAdapterInterface;
-}
+};
 
 export type SitesSyncConfig = {
   siteId: string;
@@ -24,21 +30,22 @@ export type SitesSyncConfig = {
     directory: string;
     nameFormat: string;
     keepAmount?: number;
-  }
+  };
   tempDirectory: string;
 
   databases: {
     [key: string]: SitesSyncConfigDbConnection;
-  }
+  };
 
   directories: {
     [key: string]: string;
-  }
+  };
 
   sites: {
     [key: string]: SitesSyncConfigSite;
-  }
+  };
+  siteCurrent?: SitesSyncConfigSite;
 };
 
-export type DirectoryPath = string & {__brand: 'directory'};;
-export type FilePath = string & {__brand: 'file'};
+export type DirectoryPath = string & { __brand: "directory" };
+export type FilePath = string & { __brand: "file" };

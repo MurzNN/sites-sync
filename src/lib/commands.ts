@@ -4,26 +4,35 @@ import { DirectoryPath, FilePath } from "../types/config.js";
 import { DbImportOptions } from "../types/db.js";
 import { siteUpstreamId, config } from "./config.js";
 import { getTmpFilename } from "./utils.js";
-import { backupDirectoryToFile, backupFilePath, restoreDirectoryFromFile } from "./utils.js";
-import { siteDbClear, siteDbDumpToFile, siteDbImportFromFile, siteDirectoryPull, siteDirectoryPush } from "./siteUtils.js";
+import {
+  backupDirectoryToFile,
+  backupFilePath,
+  restoreDirectoryFromFile,
+} from "./utils.js";
+import {
+  siteDbClear,
+  siteDbDumpToFile,
+  siteDbImportFromFile,
+  siteDirectoryPull,
+  siteDirectoryPush,
+} from "./siteUtils.js";
 import { dbAdapters } from "./dbAdapters.js";
 
 export function doDatabaseDump(dbId: string) {
-  if(!config.databases[dbId]) {
+  if (!config.databases[dbId]) {
     throw Error(`Database with id ${dbId} not found in config`);
   }
   dbAdapters[dbId].dump();
 }
 
-export function doDatabaseQuery(dbId: string, query: string|null = null) {
-  if(!config.databases[dbId]) {
+export function doDatabaseQuery(dbId: string, query: string | null = null) {
+  if (!config.databases[dbId]) {
     throw Error(`Database with id ${dbId} not found in config`);
   }
   dbAdapters[dbId].query(query);
-
 }
 export function doDatabaseClear(dbId: string) {
-  if(!config.databases[dbId]) {
+  if (!config.databases[dbId]) {
     throw Error(`Database with id ${dbId} not found in config`);
   }
   dbAdapters[dbId].clear();
@@ -38,11 +47,15 @@ export function doDatabasesPull(options: DbImportOptions = {}) {
 export function doDatabasePull(dbId: string, options: DbImportOptions = {}) {
   const dbAdapter = dbAdapters[dbId];
   const tempFile = getTmpFilename();
-  console.log(`Dumping database "${dbId}" from remote site "${siteUpstreamId}" to temporary file ${tempFile} ...`);
+  console.log(
+    `Dumping database "${dbId}" from remote site "${siteUpstreamId}" to temporary file ${tempFile} ...`
+  );
   siteDbDumpToFile(dbId, tempFile);
-  const {size} = statSync(tempFile);
-  const tempFileSize = prettyBytes(size)
-  console.log(`Remote database dump (${tempFileSize}) downloaded successfully.`);
+  const { size } = statSync(tempFile);
+  const tempFileSize = prettyBytes(size);
+  console.log(
+    `Remote database dump (${tempFileSize}) downloaded successfully.`
+  );
 
   console.log(`Clearing local database...`);
   dbAdapter.clear();
@@ -68,10 +81,12 @@ export function doDatabasesPush(options: DbImportOptions = {}) {
 export function doDatabasePush(dbId: string, options: DbImportOptions = {}) {
   const dbAdapter = dbAdapters[dbId];
   const tempFile = getTmpFilename();
-  console.log(`Dumping local database "${dbId}" to temporary file ${tempFile} ...`);
+  console.log(
+    `Dumping local database "${dbId}" to temporary file ${tempFile} ...`
+  );
   dbAdapter.dumpToFile(tempFile);
-  const {size} = statSync(tempFile);
-  const tempFileSize = prettyBytes(size)
+  const { size } = statSync(tempFile);
+  const tempFileSize = prettyBytes(size);
   console.log(`Local database dump (${tempFileSize}) created successfully.`);
 
   console.log(`Clearing remote database...`);
@@ -84,17 +99,19 @@ export function doDatabasePush(dbId: string, options: DbImportOptions = {}) {
 
 export function doDatabasesBackup(backupDirectory: DirectoryPath): void {
   for (const dbId in config.databases) {
-    const file = backupFilePath('database', dbId, backupDirectory);
+    const file = backupFilePath("database", dbId, backupDirectory);
     console.log(`Backing up database "${dbId}" to file "${file}" ...`);
     doDatabaseBackup(dbId, file);
-    const {size} = statSync(file);
-    const fileSize = prettyBytes(size)
-    console.log(`Database "${dbId}" is backed up to file ${file} (${fileSize}).`);
+    const { size } = statSync(file);
+    const fileSize = prettyBytes(size);
+    console.log(
+      `Database "${dbId}" is backed up to file ${file} (${fileSize}).`
+    );
   }
 }
 
 export function doDatabaseBackup(dbId: string, file: FilePath): void {
-  if(!config.databases[dbId]) {
+  if (!config.databases[dbId]) {
     throw Error(`Database with id ${dbId} not found in config`);
   }
   dbAdapters[dbId].dumpToFile(file);
@@ -102,13 +119,13 @@ export function doDatabaseBackup(dbId: string, file: FilePath): void {
 
 export function doDatabasesRestore(backupDirectory: DirectoryPath): void {
   for (const dbId in config.databases) {
-    const file = backupFilePath('database', dbId, backupDirectory);
+    const file = backupFilePath("database", dbId, backupDirectory);
     doDatabaseRestore(dbId, file);
   }
 }
 
 export function doDatabaseRestore(dbId: string, file: FilePath): void {
-  if(!config.databases[dbId]) {
+  if (!config.databases[dbId]) {
     throw Error(`Database with id ${dbId} not found in config`);
   }
   dbAdapters[dbId].restoreFromFile(file);
@@ -116,7 +133,9 @@ export function doDatabaseRestore(dbId: string, file: FilePath): void {
 
 export function doSiteDirectoriesPull() {
   for (const directoryId in config.directories) {
-    console.log(`Pulling directory "${directoryId}" (${config.directories[directoryId]}) from remote site "${siteUpstreamId}" ...`);
+    console.log(
+      `Pulling directory "${directoryId}" (${config.directories[directoryId]}) from remote site "${siteUpstreamId}" ...`
+    );
     siteDirectoryPull(config.directories[directoryId]);
     console.log(`Directory "${directoryId}" pulling is finished.`);
   }
@@ -124,7 +143,9 @@ export function doSiteDirectoriesPull() {
 
 export function doSiteDirectoriesPush(): void {
   for (const directoryId in config.directories) {
-    console.log(`Pushing directory "${directoryId}" (${config.directories[directoryId]}) to remote site "${siteUpstreamId}" ...`);
+    console.log(
+      `Pushing directory "${directoryId}" (${config.directories[directoryId]}) to remote site "${siteUpstreamId}" ...`
+    );
     siteDirectoryPush(config.directories[directoryId]);
     console.log(`Directory "${directoryId}" pushing is finished.`);
   }
@@ -132,28 +153,38 @@ export function doSiteDirectoriesPush(): void {
 
 export function doDirectoriesBackup(backupDirectory: DirectoryPath): void {
   for (const directoryId in config.directories) {
-    doDirectoryBackup(directoryId, backupDirectory)
+    doDirectoryBackup(directoryId, backupDirectory);
   }
 }
 
-export function doDirectoryBackup(directoryId: string, backupDirectory: DirectoryPath): void {
+export function doDirectoryBackup(
+  directoryId: string,
+  backupDirectory: DirectoryPath
+): void {
   const path = config.directories[directoryId] as DirectoryPath;
-  const file = backupFilePath('directory', directoryId, backupDirectory);
-  console.log(`Backing up directory "${directoryId}" to archive file "${file}" ...`);
-  backupDirectoryToFile(path, file)
+  const file = backupFilePath("directory", directoryId, backupDirectory);
+  console.log(
+    `Backing up directory "${directoryId}" to archive file "${file}" ...`
+  );
+  backupDirectoryToFile(path, file);
   console.log(`Backup of directory "${directoryId}" is finished.`);
 }
 
 export function doDirectoriesRestore(backupDirectory: DirectoryPath): void {
   for (const directoryId in config.directories) {
-    doDirectoryRestore(directoryId, backupDirectory)
+    doDirectoryRestore(directoryId, backupDirectory);
   }
 }
 
-export function doDirectoryRestore(directoryId: string, backupDirectory: DirectoryPath): void {
+export function doDirectoryRestore(
+  directoryId: string,
+  backupDirectory: DirectoryPath
+): void {
   const path = config.directories[directoryId] as DirectoryPath;
-  const file = backupFilePath('directory', directoryId, backupDirectory);
-  console.log(`Restoring directory "${directoryId}" from archive file "${file}" ...`);
+  const file = backupFilePath("directory", directoryId, backupDirectory);
+  console.log(
+    `Restoring directory "${directoryId}" from archive file "${file}" ...`
+  );
   restoreDirectoryFromFile(path, file);
   console.log(`Restoration of directory "${directoryId}" is finished.`);
 }

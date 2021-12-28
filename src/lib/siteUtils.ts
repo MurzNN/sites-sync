@@ -4,16 +4,16 @@ import { checkUtilitesAvailability } from "./utils.js";
 
 export function siteExecCommand(cmd: string) {
   if (!siteUpstream.execCommand) {
-      throw Error(`execCommand is missing for site "${siteUpstreamId}"`);
+    throw Error(`execCommand is missing for site "${siteUpstreamId}"`);
   }
-  if(siteUpstream.rootDirectory) {
+  if (siteUpstream.rootDirectory) {
     cmd = `cd ${siteUpstream.rootDirectory} && (${cmd})`;
   }
   cmd = cmd.replace(/'/g, "''");
 
   let siteCmd;
-  if(siteUpstream.quoteCommands) {
-    cmd = cmd.replace(/"/g, "\\\"");
+  if (siteUpstream.quoteCommands) {
+    cmd = cmd.replace(/"/g, '\\"');
     siteCmd = `${siteUpstream.execCommand} -- "sh -c '${cmd}'"`;
   } else {
     siteCmd = `${siteUpstream.execCommand} -- sh -c '${cmd}'`;
@@ -22,17 +22,21 @@ export function siteExecCommand(cmd: string) {
   // console.log(siteCmd);throw 354
   return siteCmd;
 }
-export function siteExec(cmd: string, execOptions = undefined, options = undefined) {
+export function siteExec(
+  cmd: string,
+  execOptions = undefined,
+  options = undefined
+) {
   checkUtilitesAvailability(true);
-  const siteCmd = siteExecCommand(cmd)
+  const siteCmd = siteExecCommand(cmd);
   const result = execSync(siteCmd, execOptions ?? { stdio: "inherit" });
   return result;
 }
 export function siteTerminal() {
   let cmd = siteUpstream.terminalCommand;
-  const shell = siteUpstream.shell ?? 'sh'
-  if(siteUpstream.rootDirectory) {
-    cmd += ` "cd ${siteUpstream.rootDirectory} && ${shell}"`
+  const shell = siteUpstream.shell ?? "sh";
+  if (siteUpstream.rootDirectory) {
+    cmd += ` "cd ${siteUpstream.rootDirectory} && ${shell}"`;
   } else {
     cmd += ` ${shell}`;
   }
@@ -70,27 +74,23 @@ export function siteDbDumpToFile(dbId: string, file: string) {
   siteExecToFile(cmd, file);
 }
 
-
-
-function rsyncCommand(path: string, direction: 'pull'|'push') {
-  const prefix = `rsync -rlpt --blocking-io --info=progress2 --delete --rsync-path=${siteUpstream.rootDirectory ?? ''}${path} --rsh=\"${siteUpstream.execCommand}\ --"`
-  return prefix + ' '
-    + (direction == 'pull'
-      ? `rsync: ${path}`
-      : `${path} rsync:`
-    );
+function rsyncCommand(path: string, direction: "pull" | "push") {
+  const prefix = `rsync -rlpt --blocking-io --info=progress2 --delete --rsync-path=${
+    siteUpstream.rootDirectory ?? ""
+  }${path} --rsh=\"${siteUpstream.execCommand}\ --"`;
+  return (
+    prefix + " " + (direction == "pull" ? `rsync: ${path}` : `${path} rsync:`)
+  );
 }
 
-export function siteIsExecutableExists(cmd: string) {
-}
-
+export function siteIsExecutableExists(cmd: string) {}
 
 export function siteDirectoryPull(path: string) {
-  const cmd = rsyncCommand(path, 'pull');
+  const cmd = rsyncCommand(path, "pull");
   execSync(cmd, { stdio: "inherit" });
 }
 
 export function siteDirectoryPush(path: string) {
-  const cmd = rsyncCommand(path, 'push');
+  const cmd = rsyncCommand(path, "push");
   execSync(cmd, { stdio: "inherit" });
 }
