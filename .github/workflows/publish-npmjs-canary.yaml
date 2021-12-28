@@ -11,14 +11,15 @@ jobs:
       # Setup .npmrc file to publish to npm
       - uses: actions/setup-node@v2
         with:
-          node-version: "16.x"
+          node-version: "14.x"
           registry-url: "https://registry.npmjs.org"
+      - run: node -v && npm -v && yarn -v
       - run: yarn install --immutable --immutable-cache --check-cache
       - run: npx prettier --check .
       - run: tsc -p ./tsconfig.prod.json
-      - run: ./scripts/npmjs-repo-cleanup.sh
+      - run: npm publish --tag canary
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-      - run: npm publish --tag canary
+      - run: ./scripts/npmjs-repo-cleanup.sh
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
