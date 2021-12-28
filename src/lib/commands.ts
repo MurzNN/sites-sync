@@ -2,7 +2,7 @@ import { statSync, unlinkSync } from "fs";
 import prettyBytes from "pretty-bytes";
 import { DirectoryPath, FilePath } from "../types/config.js";
 import { DbImportOptions } from "../types/db.js";
-import { siteUpstreamId, config } from "./config.js";
+import { siteUpstreamId, config, destructiveOperationCheck } from "./config.js";
 import { getTmpFilename } from "./utils.js";
 import {
   backupDirectoryToFile,
@@ -32,6 +32,7 @@ export function doDatabaseQuery(dbId: string, query: string | null = null) {
   dbAdapters[dbId].query(query);
 }
 export function doDatabaseClear(dbId: string) {
+  destructiveOperationCheck();
   if (!config.databases[dbId]) {
     throw Error(`Database with id ${dbId} not found in config`);
   }
@@ -39,12 +40,14 @@ export function doDatabaseClear(dbId: string) {
 }
 
 export function doDatabasesPull(options: DbImportOptions = {}) {
+  destructiveOperationCheck();
   for (const dbId in config.databases) {
     doDatabasePull(dbId, options);
   }
 }
 
 export function doDatabasePull(dbId: string, options: DbImportOptions = {}) {
+  destructiveOperationCheck();
   const dbAdapter = dbAdapters[dbId];
   const tempFile = getTmpFilename();
   console.log(
@@ -73,12 +76,14 @@ export function doDatabasePull(dbId: string, options: DbImportOptions = {}) {
 }
 
 export function doDatabasesPush(options: DbImportOptions = {}) {
+  destructiveOperationCheck(siteUpstreamId);
   for (const dbId in config.databases) {
     doDatabasePush(dbId, options);
   }
 }
 
 export function doDatabasePush(dbId: string, options: DbImportOptions = {}) {
+  destructiveOperationCheck(siteUpstreamId);
   const dbAdapter = dbAdapters[dbId];
   const tempFile = getTmpFilename();
   console.log(
@@ -118,6 +123,7 @@ export function doDatabaseBackup(dbId: string, file: FilePath): void {
 }
 
 export function doDatabasesRestore(backupDirectory: DirectoryPath): void {
+  destructiveOperationCheck();
   for (const dbId in config.databases) {
     const file = backupFilePath("database", dbId, backupDirectory);
     doDatabaseRestore(dbId, file);
@@ -125,6 +131,7 @@ export function doDatabasesRestore(backupDirectory: DirectoryPath): void {
 }
 
 export function doDatabaseRestore(dbId: string, file: FilePath): void {
+  destructiveOperationCheck();
   if (!config.databases[dbId]) {
     throw Error(`Database with id ${dbId} not found in config`);
   }
@@ -132,6 +139,7 @@ export function doDatabaseRestore(dbId: string, file: FilePath): void {
 }
 
 export function doSiteDirectoriesPull() {
+  destructiveOperationCheck();
   for (const directoryId in config.directories) {
     console.log(
       `Pulling directory "${directoryId}" (${config.directories[directoryId]}) from remote site "${siteUpstreamId}" ...`
@@ -142,6 +150,7 @@ export function doSiteDirectoriesPull() {
 }
 
 export function doSiteDirectoriesPush(): void {
+  destructiveOperationCheck(siteUpstreamId);
   for (const directoryId in config.directories) {
     console.log(
       `Pushing directory "${directoryId}" (${config.directories[directoryId]}) to remote site "${siteUpstreamId}" ...`
@@ -171,6 +180,7 @@ export function doDirectoryBackup(
 }
 
 export function doDirectoriesRestore(backupDirectory: DirectoryPath): void {
+  destructiveOperationCheck();
   for (const directoryId in config.directories) {
     doDirectoryRestore(directoryId, backupDirectory);
   }
@@ -180,6 +190,7 @@ export function doDirectoryRestore(
   directoryId: string,
   backupDirectory: DirectoryPath
 ): void {
+  destructiveOperationCheck();
   const path = config.directories[directoryId] as DirectoryPath;
   const file = backupFilePath("directory", directoryId, backupDirectory);
   console.log(
