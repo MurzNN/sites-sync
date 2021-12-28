@@ -74,3 +74,5 @@ sites:
   live:
     execCommand: kubectl exec -n mycoolsite-prod -i deployment/mycoolsite
     terminalCommand: kubectl exec -n mycoolsite-prod -i -t deployment/mycoolsite
+    # This is a flag, that disables destructive operations on that site (pushing changes, restore from backup, etc).
+    disableDestructiveOperations: true
