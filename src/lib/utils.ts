@@ -2,7 +2,7 @@ import { execSync } from "child_process";
 import { emptyDirSync } from "fs-extra";
 import { DirectoryPath, FilePath } from "../types/config.js";
 import { config, siteUpstreamId } from "./config.js";
-import dateFormat from "dateformat";
+import { format } from "date-fns";
 import { existsSync, mkdirSync, readdir, readdirSync, rmSync } from "fs";
 import { siteExec } from "./siteUtils.js";
 
@@ -28,7 +28,7 @@ export function prepareBackupDirectory(): DirectoryPath {
     const date = new Date();
     directoryName = directoryName.replace(
       /{%TIME:([^%]+)%}/,
-      dateFormat(date, matches.groups.time)
+      format(date, matches.groups.time)
     );
   }
 
