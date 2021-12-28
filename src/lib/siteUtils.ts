@@ -13,9 +13,9 @@ export function siteExecCommand(cmd: string) {
   let siteCmd;
   if (siteUpstream.quoteCommands) {
     cmd = cmd.replace(/"/g, '\\"');
-    siteCmd = `${siteUpstream.execCommand} -- "sh -c '${cmd}'"`;
+    siteCmd = `${siteUpstream.execCommand} "sh -c '${cmd}'"`;
   } else {
-    siteCmd = `${siteUpstream.execCommand} -- sh -c '${cmd}'`;
+    siteCmd = `${siteUpstream.execCommand} sh -c '${cmd}'`;
   }
 
   // console.log(siteCmd);throw 354
