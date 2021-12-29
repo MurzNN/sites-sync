@@ -13,7 +13,7 @@ const configFilename = "sites-sync.yaml";
 
 const configFileContents = fs.readFileSync(configFilename).toString();
 var myEnv = dotenv.config();
-dotenvExpand(myEnv)
+dotenvExpand(myEnv);
 
 const configFileContentsSubstituted = envsubst(configFileContents);
 export const config = yaml.load(
