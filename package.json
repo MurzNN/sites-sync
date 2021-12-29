@@ -1,6 +1,6 @@
 {
   "name": "sites-sync",
-  "version": "0.2.0-canary.29",
+  "version": "0.2.0-canary.30",
   "description": "Tools for automate sync of dynamic data (content like database and files) between sites via ssh or kubectl.",
   "main": "dist/index.js",
   "license": "MIT",
@@ -28,8 +28,11 @@
     "ss": "sites-sync"
   },
   "scripts": {
-    "sites-sync": "./sites-sync",
-    "ss": "./sites-sync"
+    "sites-sync": "node dist/index.js",
+    "ss": "node dist/index.js",
+    "build": "tsc -p ./tsconfig.prod.json",
+    "watch": "tsc --watch",
+    "start": "node dist/index.js"
   },
   "dependencies": {
     "@tuplo/envsubst": "^1.13.0",
