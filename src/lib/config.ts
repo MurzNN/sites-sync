@@ -3,6 +3,7 @@ import yargs from "yargs";
 import { hideBin } from "yargs/helpers";
 import yaml from "js-yaml";
 import dotenv from "dotenv";
+import dotenvExpand from "dotenv-expand";
 import envsubst from "@tuplo/envsubst";
 import { SitesSyncConfig } from "../types/config.js";
 import { dbAdapterFactory } from "./dbAdapterFactory.js";
@@ -11,7 +12,9 @@ import merge from "lodash.merge";
 const configFilename = "sites-sync.yaml";
 
 const configFileContents = fs.readFileSync(configFilename).toString();
-dotenv.config();
+var myEnv = dotenv.config();
+dotenvExpand(myEnv)
+
 const configFileContentsSubstituted = envsubst(configFileContents);
 export const config = yaml.load(
   configFileContentsSubstituted
