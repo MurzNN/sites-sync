@@ -32,79 +32,94 @@ function getVersion() {
   return packageJson.version;
 }
 
+const commandsAliases: { [key: string]: Array<string> } = {
+  pull: ["p"],
+  push: [],
+  terminal: ["t"],
+  exec: ["e"],
+  backup: ["b"],
+  restore: ["r"],
+  upstream: ["us"],
+};
+
+function getCommand(nameOrAlias: string): string | false {
+  if (commandsAliases[nameOrAlias]) {
+    return nameOrAlias;
+  }
+  for (const command in commandsAliases) {
+    if (commandsAliases[command].indexOf(nameOrAlias) != -1) {
+      return command;
+    }
+  }
+  return nameOrAlias;
+}
+
 const myYargs = yargs(process.argv.slice(2))
   .scriptName("sites-sync")
   .usage("Usage: $0 <command> [options]")
 
   .middleware(function (argv) {
     if (!argv._[0]) return;
-    const commandMain = argv._[0];
-    if (config.commandHooks?.[commandMain]?.before) {
-      const cmd = config.commandHooks?.[commandMain]?.before as string;
-      console.log(
-        `Executing "before" hook for command "${commandMain}": ${cmd}`
-      );
+    const command = getCommand(argv._[0] as string);
+    if (command && config.commandHooks?.[command]?.before) {
+      const cmd = config.commandHooks?.[command]?.before as string;
+      console.log(`Executing "before" hook for command "${command}": ${cmd}`);
       execSync(cmd, { stdio: "inherit" });
       console.log(`"before" hook executing finished.`);
     }
   })
 
   .command(
-    ["pull", "p"],
+    ["pull", ...(commandsAliases["pull"] ?? [])],
     "Pull databases and directories from remote site.",
     {},
     async (argv) => {
       doDatabasesPull();
       doSiteDirectoriesPull();
       console.log(`Pull from site "${siteUpstreamId}" successfully completed.`);
-      process.exit(0);
     }
   )
   .command(
-    "push",
+    ["push", ...(commandsAliases["push"] ?? [])],
     "Push databases and directories to remote site.",
     {},
     async (argv) => {
       doDatabasesPush();
       doSiteDirectoriesPush();
       console.log(`Push to site "${siteUpstreamId}" successfully completed.`);
-      process.exit(0);
     }
   )
 
   .command(
-    ["terminal", "t"],
+    ["terminal", ...(commandsAliases["terminal"] ?? [])],
     "Open interactive terminal to remote site.",
     {},
     async (argv) => {
       siteTerminal();
-      process.exit(0);
     }
   )
   .command(
-    ["exec", "e"],
+    ["exec", ...(commandsAliases["exec"] ?? [])],
     "Execute command on remote site.",
     {},
     async (argv) => {
       const cmd = argv._[1] as string;
       siteExec(cmd);
-      process.exit(0);
     }
   )
 
   .command(
-    ["backup", "b"],
+    ["backup", ...(commandsAliases["backup"] ?? [])],
     "Make a backup of current site to backup directory (databases and directories).",
     {},
     async (argv) => {
       const backupDirectory = prepareBackupDirectory();
       doDatabasesBackup(backupDirectory);
       doDirectoriesBackup(backupDirectory);
-      process.exit(0);
     }
   )
   .command(
-    ["restore", "r"],
+    ["restore", ...(commandsAliases["restore"] ?? [])],
     "Restore current site from backup directory (databases and directories).",
     {},
     async (argv) => {
@@ -113,104 +128,128 @@ const myYargs = yargs(process.argv.slice(2))
       console.log(backupDirectory);
       doDatabasesRestore(backupDirectory);
       doDirectoriesRestore(backupDirectory);
-      process.exit(0);
     }
   )
   .command(
-    ["delete-backups"],
+    ["delete-backups", ...(commandsAliases["delete-backups"] ?? [])],
     "Delete all backups from backup directory",
     {},
     async (argv) => {
       backupDirectoryDeleteAll();
-      process.exit(0);
     }
   )
 
-  .command("db-dump", "Dump database to stdout.", {}, async (argv) => {
-    const dbId = (argv._[1] as string) ?? Object.keys(config.databases)[0];
-    doDatabaseDump(dbId);
-    process.exit(0);
-  })
-  .command("db-query", "Execute db query from stdin.", {}, async (argv) => {
-    const dbId = (argv._[1] as string) ?? Object.keys(config.databases)[0];
-    doDatabaseQuery(dbId);
-    process.exit(0);
-  })
-  .command("db-clear", "Clear current database.", {}, async (argv) => {
-    const dbId = (argv._[1] as string) ?? Object.keys(config.databases)[0];
-    doDatabaseClear(dbId);
-    process.exit(0);
-  })
   .command(
-    "db-import",
+    ["db-dump", ...(commandsAliases["db-dump"] ?? [])],
+    "Dump database to stdout.",
+    {},
+    async (argv) => {
+      const dbId = (argv._[1] as string) ?? Object.keys(config.databases)[0];
+      doDatabaseDump(dbId);
+    }
+  )
+  .command(
+    ["db-query", ...(commandsAliases["db-query"] ?? [])],
+    "Execute db query from stdin.",
+    {},
+    async (argv) => {
+      const dbId = (argv._[1] as string) ?? Object.keys(config.databases)[0];
+      doDatabaseQuery(dbId);
+    }
+  )
+  .command(
+    ["db-clear", ...(commandsAliases["db-clear"] ?? [])],
+    "Clear current database.",
+    {},
+    async (argv) => {
+      const dbId = (argv._[1] as string) ?? Object.keys(config.databases)[0];
+      doDatabaseClear(dbId);
+    }
+  )
+  .command(
+    ["db-import", ...(commandsAliases["db-import"] ?? [])],
     "Import database dump from stdin.",
     {},
     async (argv) => {
       const dbId = (argv._[1] as string) ?? Object.keys(config.databases)[0];
       doDatabaseClear(dbId);
-      process.exit(0);
     }
   )
-  .command("db-pull", "Pull database from remote site.", {}, async (argv) => {
-    const dbImportOptions = {} as DbImportOptions;
-    if (argv.keepFiles) {
-      dbImportOptions.keepFiles = true;
+  .command(
+    ["db-pull", ...(commandsAliases["db-pull"] ?? [])],
+    "Pull database from remote site.",
+    {},
+    async (argv) => {
+      const dbImportOptions = {} as DbImportOptions;
+      if (argv.keepFiles) {
+        dbImportOptions.keepFiles = true;
+      }
+      doDatabasesPull(dbImportOptions);
     }
-    doDatabasesPull(dbImportOptions);
-    process.exit(0);
-  })
-  .command("db-push", "Push database to remote site.", {}, async (argv) => {
-    const dbImportOptions = {} as DbImportOptions;
-    if (argv.keepFiles) {
-      dbImportOptions.keepFiles = true;
+  )
+  .command(
+    ["db-push", ...(commandsAliases["db-push"] ?? [])],
+    "Push database to remote site.",
+    {},
+    async (argv) => {
+      const dbImportOptions = {} as DbImportOptions;
+      if (argv.keepFiles) {
+        dbImportOptions.keepFiles = true;
+      }
+      doDatabasesPush();
     }
-    doDatabasesPush();
-    process.exit(0);
-  })
+  )
 
   .command(
-    "directory-pull",
+    ["directory-pull", ...(commandsAliases["directory-pull"] ?? [])],
     "Pull all directories from remote site.",
     {},
     async (argv) => {
       doSiteDirectoriesPull();
-      process.exit(0);
     }
   )
   .command(
-    "directory-push",
+    ["directory-push", ...(commandsAliases["directory-push"] ?? [])],
     "Push all directories to remote site.",
     {},
     async (argv) => {
       doSiteDirectoriesPush();
-      process.exit(0);
     }
   )
 
-  .command("id", "Outputs an id of current site.", {}, async (argv) => {
-    console.log("sleeping");
-    await new Promise((f) => setTimeout(f, 2000));
-    console.log(config.siteId);
-    // process.exit(0);
-  })
   .command(
-    "upstream",
+    ["id", ...(commandsAliases["id"] ?? [])],
+    "Outputs an id of current site.",
+    {},
+    async (argv) => {
+      console.log(config.siteId);
+    }
+  )
+  .command(
+    ["upstream", ...(commandsAliases["upstream"] ?? [])],
     "Outputs an id of default upstream site.",
     {},
     async (argv) => {
       console.log(config.siteUpstreamId);
-      process.exit(0);
     }
   )
   .strict()
   .help("h")
   .alias("h", "help")
   .epilog(
-    `Sites-sync version ${getVersion()}. (c) Alexey Murz Korepov <MurzNN@gmail.com>`
+    `sites-sync version ${getVersion()}. (c) Alexey Murz Korepov <MurzNN@gmail.com>`
   );
 
 const argv = await myYargs.parseAsync();
 
 if (argv._.length == 0) {
   myYargs.showHelp();
+} else {
+  const command = getCommand(argv._[0] as string);
+  if (command && config.commandHooks?.[command]?.after) {
+    const cmd = config.commandHooks?.[command]?.after as string;
+    console.log(`Executing "after" hook for command "${command}": ${cmd}`);
+    execSync(cmd, { stdio: "inherit" });
+    console.log(`"after" hook executing finished.`);
+  }
 }
