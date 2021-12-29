@@ -75,7 +75,7 @@ export function siteDbDumpToFile(dbId: string, file: string) {
 function rsyncCommand(path: string, direction: "pull" | "push") {
   const prefix = `rsync -rlpt --blocking-io --info=progress2 --delete --rsync-path=${
     siteUpstream.rootDirectory ?? ""
-  }${path} --rsh=\"${siteUpstream.execCommand}\ --"`;
+  }${path} --rsh=\"${siteUpstream.execCommand}\"`;
   return (
     prefix + " " + (direction == "pull" ? `rsync: ${path}` : `${path} rsync:`)
   );
