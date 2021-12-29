@@ -34,7 +34,6 @@ function getVersion() {
 
 const commandsAliases: { [key: string]: Array<string> } = {
   pull: ["p"],
-  push: [],
   terminal: ["t"],
   exec: ["e"],
   backup: ["b"],
@@ -57,7 +56,7 @@ function getCommand(nameOrAlias: string): string | false {
 const myYargs = yargs(process.argv.slice(2))
   .scriptName("sites-sync")
   .usage("Usage: $0 <command> [options]")
-
+  .options({ site: { alias: "s" } })
   .middleware(function (argv) {
     if (!argv._[0]) return;
     const command = getCommand(argv._[0] as string);

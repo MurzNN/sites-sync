@@ -44,9 +44,7 @@ for (const siteId in config.sites) {
     config.sites[siteId].rootDirectory += "/";
   }
 }
-export const argv = await yargs(hideBin(process.argv))
-  .alias("s", "site")
-  .alias("d", "directory").argv;
+export const argv = await yargs(hideBin(process.argv)).alias("s", "site").argv;
 
 export const siteUpstreamId: string =
   (argv["site"] as string) ?? config.siteUpstreamId;
