@@ -56,7 +56,13 @@ function getCommand(nameOrAlias: string): string | false {
 const myYargs = yargs(process.argv.slice(2))
   .scriptName("sites-sync")
   .usage("Usage: $0 <command> [options]")
-  .options({ site: { alias: "s" } })
+  .options({
+    site: {
+      alias: "s",
+      describe: "Use custom upstream site id",
+      type: "string",
+    },
+  })
   .middleware(function (argv) {
     if (!argv._[0]) return;
     const command = getCommand(argv._[0] as string);
@@ -98,11 +104,11 @@ const myYargs = yargs(process.argv.slice(2))
     }
   )
   .command(
-    ["exec", ...(commandsAliases["exec"] ?? [])],
+    ["exec <cmd>", ...(commandsAliases["exec"] ?? [])],
     "Execute command on remote site.",
     {},
     async (argv) => {
-      const cmd = argv._[1] as string;
+      const cmd = argv.cmd as string;
       siteExec(cmd);
     }
   )
@@ -139,38 +145,38 @@ const myYargs = yargs(process.argv.slice(2))
   )
 
   .command(
-    ["db-dump", ...(commandsAliases["db-dump"] ?? [])],
+    ["db-dump [db-id]", ...(commandsAliases["db-dump"] ?? [])],
     "Dump database to stdout.",
     {},
     async (argv) => {
-      const dbId = (argv._[1] as string) ?? Object.keys(config.databases)[0];
+      const dbId = (argv.dbId as string) ?? Object.keys(config.databases)[0];
       doDatabaseDump(dbId);
     }
   )
   .command(
-    ["db-query", ...(commandsAliases["db-query"] ?? [])],
+    ["db-query [db-id]", ...(commandsAliases["db-query"] ?? [])],
     "Execute db query from stdin.",
     {},
     async (argv) => {
-      const dbId = (argv._[1] as string) ?? Object.keys(config.databases)[0];
+      const dbId = (argv.dbId as string) ?? Object.keys(config.databases)[0];
       doDatabaseQuery(dbId);
     }
   )
   .command(
-    ["db-clear", ...(commandsAliases["db-clear"] ?? [])],
+    ["db-clear [db-id]", ...(commandsAliases["db-clear"] ?? [])],
     "Clear current database.",
     {},
     async (argv) => {
-      const dbId = (argv._[1] as string) ?? Object.keys(config.databases)[0];
+      const dbId = (argv.dbId as string) ?? Object.keys(config.databases)[0];
       doDatabaseClear(dbId);
     }
   )
   .command(
-    ["db-import", ...(commandsAliases["db-import"] ?? [])],
+    ["db-import [db-id]", ...(commandsAliases["db-import"] ?? [])],
     "Import database dump from stdin.",
     {},
     async (argv) => {
-      const dbId = (argv._[1] as string) ?? Object.keys(config.databases)[0];
+      const dbId = (argv.dbId as string) ?? Object.keys(config.databases)[0];
       doDatabaseClear(dbId);
     }
   )
