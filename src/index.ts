@@ -41,7 +41,7 @@ const commandsAliases: { [key: string]: Array<string> } = {
   upstream: ["us"],
 };
 
-function getCommand(nameOrAlias: string): string | false {
+function getCommand(nameOrAlias: string): string {
   if (commandsAliases[nameOrAlias]) {
     return nameOrAlias;
   }

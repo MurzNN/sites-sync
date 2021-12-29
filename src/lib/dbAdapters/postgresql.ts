@@ -42,7 +42,9 @@ export default class PostgresqlDbAdapter
 
     let command: string = `PGPASSFILE=${this.getConfigFile()} ${
       commandType[type]
-    } ${cmdArguments.join(" ")} ${this.connection.dbName}`;
+    } ${cmdArguments.join(" ")} -h ${this.connection.host} -U ${
+      this.connection.username
+    } ${this.connection.dbName}`;
 
     return command;
   }
