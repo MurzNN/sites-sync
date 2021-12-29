@@ -16,7 +16,9 @@ export default class PostgresqlDbAdapter
       this.dbPassFile = getTmpFilename();
       writeFileSync(
         this.dbPassFile,
-        `${this.connection.host}:${this.connection.port}:${this.connection.dbName}:${this.connection.username}:${this.connection.password}`,
+        `${this.connection.host ?? "localhost"}:${this.connection.port ?? ""}:${
+          this.connection.dbName
+        }:${this.connection.username ?? ""}:${this.connection.password ?? ""}`,
         { mode: "600" }
       );
     }
