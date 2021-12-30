@@ -55,6 +55,7 @@ if (!siteUpstream && argv["site"]) {
 }
 
 export function destructiveOperationCheck(siteId?: string) {
+  if(!siteId) siteId = config.siteId;
   const siteTocheck = siteId ? config.sites[siteId] : config.siteCurrent;
   if (siteTocheck?.disableDestructiveOperations) {
     console.error(`Destructive operations are disabled on site ${siteId}!`);
