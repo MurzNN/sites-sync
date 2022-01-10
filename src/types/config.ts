@@ -18,7 +18,7 @@ export type SitesSyncConfigSite = {
 export type SitesSyncConfigDbConnection = {
   uri: string;
   customParams?: DbCustomParams;
-  customBinary?: DbCustomParams;
+  customExecutable?: DbCustomParams;
   adapter: DbAdapterInterface;
 };
 

@@ -31,12 +31,14 @@ if (config.sites[config.siteId]) {
 }
 
 for (const directoryId in config.directories) {
+  // Trick to prevent trheating directory as file in rsync operations.
   if (config.directories[directoryId].slice(-1) !== "/") {
     config.directories[directoryId] += "/";
   }
 }
 
 for (const siteId in config.sites) {
+  // Trick to prevent trheating directory as file in rsync operations.
   if (
     config.sites[siteId]?.rootDirectory &&
     config.sites[siteId].rootDirectory?.slice(-1) !== "/"
