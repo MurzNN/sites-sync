@@ -43,6 +43,9 @@ port=${this.connection.port}
     if (type == "dump") {
       cmdArguments.push("--single-transaction");
     }
+    if (this.config.customParams?.[type]) {
+      cmdArguments.push(this.config.customParams[type] ?? "");
+    }
     const command = `${executable} --defaults-extra-file=${this.getDbPassFile()} ${cmdArguments.join(
       " "
     )} ${this.connection.dbName}`;
