@@ -36,7 +36,8 @@ port=${this.connection.port}
       "query" = "mysql",
       "dump" = "mysqldump",
     }
-    const executable = this.config.customExecutable?.[type] ?? executableByType[type];
+    const executable =
+      this.config.customExecutable?.[type] ?? executableByType[type];
 
     const cmdArguments: Array<string> = [];
     if (type == "dump") {

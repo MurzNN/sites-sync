@@ -23,7 +23,7 @@ export const getTmpFilename = function () {
 
 export function prepareBackupDirectory(): DirectoryPath {
   let directoryName = config.backup.nameFormat;
-  if(directoryName == '/' || directoryName == '') {
+  if (directoryName == "/" || directoryName == "") {
     throw "Backup directory target is empty or pointing to root!";
   }
   const matches = /{%TIME:(?<time>[^%]+)%}/.exec(directoryName);
