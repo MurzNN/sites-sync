@@ -38,7 +38,7 @@ for (const directoryId in config.directories) {
 
 for (const siteId in config.sites) {
   if (
-    config.sites[siteId].rootDirectory &&
+    config.sites[siteId]?.rootDirectory &&
     config.sites[siteId].rootDirectory?.slice(-1) !== "/"
   ) {
     config.sites[siteId].rootDirectory += "/";
