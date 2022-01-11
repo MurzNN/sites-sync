@@ -4,8 +4,8 @@
 # You can use environment variables using ${ENV_NAME} construction in file.    #
 #                                                                              #
 # Custom variables:                                                            #
-# - ${TIMESTAMP} - current unix timestamp                                      #
-# - ${TIME} - current time in human readable format                            #
+# - ${TIME:<template>} - formatted time using date-fns library                 #
+#   Documentation: https://date-fns.org/docs/format                            #
 ################################################################################
 
 # ID of current site. You can use environment variable to set right id per site.
@@ -14,9 +14,6 @@ siteId: ${SITE}
 # ID of default upstream site, that will be used to sync data from.
 # You can override upstream site using `-s siteId` command line argument.
 siteUpstreamId: ${SITE_UPSTREAM}
-
-# Location of directory to store dump files.
-backupLocation: temp/dump-${TIME}
 
 # Location of directory for temporary files
 tempDirectory: /tmp
@@ -41,9 +38,9 @@ databases:
 
     # custom paramaters to add when launching database binary
     customParams:
-      # for query tool (`psql` for postgresql, `mongo` for mongo)
+      # for query tool (`psql` for postgresql, `mysql` for mysql)
       query:
-      # for dump tool (`pg_dump` for postgresql, `mongodump` for mongo)
+      # for dump tool (`pg_dump` for postgresql, `mysqldump` for mysql)
       # it's recommended to set '-no-owner' for postgresql, if your site use
       # different usernames per site
       dump: --no-owner
@@ -76,3 +73,9 @@ sites:
     terminalCommand: kubectl exec -n mycoolsite-prod -i -t deployment/mycoolsite
     # This is a flag, that disables destructive operations on that site (pushing changes, restore from backup, etc).
     disableDestructiveOperations: true
+    # databasesOverride:
+      # Here you can override executable of database's dump and query commands for current site
+      # main:
+      #   customExecutable:
+      #     dump: ./scripts/custom-dump.sh
+      #     query: /usr/local/bin/mysql8.0
