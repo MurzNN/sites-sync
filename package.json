@@ -1,21 +1,50 @@
 {
   "name": "sites-sync",
-  "version": "0.1.10",
-  "description": "Tools for automate sync of dynamic data (content like database and files) between sites via ssh.",
-  "main": "index.js",
+  "version": "0.2.0-canary.36",
+  "description": "Tools for automate sync of dynamic data (content like database and files) between sites via ssh or kubectl.",
+  "main": "dist/index.js",
   "license": "MIT",
+  "type": "module",
+  "homepage": "https://github.com/MurzNN/sites-sync",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/MurzNN/sites-sync.git"
+  },
+  "bugs": {
+    "url": "https://github.com/MurzNN/sites-sync/issues"
+  },
+  "keywords": [
+    "backup",
+    "database",
+    "dump",
+    "sync",
+    "synchronize",
+    "sites-sync"
+  ],
+  "author": {
+    "name": "Alexey Murz Korepov",
+    "email": "MurzNN@gmail.com",
+    "url": "http://korepov.pro"
+  },
   "bin": {
-    "db-dump": "./db-dump.js",
-    "db-backup": "./db-backup.js",
-    "db-restore": "./db-restore.js",
-    "site-import": "./site-import.js",
-    "site-ssh": "./site-ssh.js",
-    "site-exec": "./site-exec.js",
-    "sites-list": "./sites-list.js"
+    "sites-sync": "sites-sync",
+    "ss": "sites-sync"
+  },
+  "scripts": {
+    "sites-sync": "node dist/index.js",
+    "ss": "node dist/index.js",
+    "build": "tsc -p ./tsconfig.prod.json",
+    "watch": "tsc --watch",
+    "start": "node dist/index.js"
   },
   "dependencies": {
+    "@tuplo/envsubst": "^1.13.0",
+    "date-fns": "^2.27.0",
     "dotenv": "^8.2.0",
+    "dotenv-expand": "^5.1.0",
+    "fs-extra": "^10.0.0",
     "js-yaml": "^4.0.0",
+    "lodash.merge": "^4.6.2",
     "pretty-bytes": "^5.5.0",
     "ssh2": "^0.8.9",
     "ssh2-client": "^1.3.2",
@@ -23,13 +52,4 @@
     "yargs": "^16.2.0",
     "yargs-unparser": "^2.0.0"
   }
-  "author": "Alexey Murz Korepov <MurzNN@gmail.com>",
-  "homepage": "https://github.com/MurzNN/sites-sync#readme",
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/MurzNN/sites-sync.git"
-  },
- "bugs": {
-    "url": "https://github.com/MurzNN/sites-sync/issues"
-  },  
 }

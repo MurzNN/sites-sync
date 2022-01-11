@@ -1,0 +1,81 @@
+################################################################################
+# This is a configuration file for sites-sync package.                         #
+#                                                                              #
+# You can use environment variables using ${ENV_NAME} construction in file.    #
+#                                                                              #
+# Custom variables:                                                            #
+# - ${TIME:<template>} - formatted time using date-fns library                 #
+#   Documentation: https://date-fns.org/docs/format                            #
+################################################################################
+
+# ID of current site. You can use environment variable to set right id per site.
+siteId: ${SITE}
+
+# ID of default upstream site, that will be used to sync data from.
+# You can override upstream site using `-s siteId` command line argument.
+siteUpstreamId: ${SITE_UPSTREAM}
+
+# Location of directory for temporary files
+tempDirectory: /tmp
+
+# Configuration for backup and restore commands
+backup:
+  # Path to directory where to create backups
+  directory: sites-sync-backups/
+  # Format of directory name for each backup archives bundle
+  nameFormat: backup_{%TIME:yyyy-mm-dd_HH-MM-ss%}
+  # Number of directories to keep. Deletion performs on directories with older
+  # modification time. Set to zero or remove to disable auto cleanup feature.
+  keepAmount: 10
+
+# Database access configuration
+databases:
+  main:
+    # URI in format: database_type://user:password@host/db_name
+    # Currently supported database types: postgresql, mongo
+    # Examaple: postgresql://site_user:superPassw0rd@localhost/my_database
+    uri: ${DATABASE_URL}
+
+    # custom paramaters to add when launching database binary
+    customParams:
+      # for query tool (`psql` for postgresql, `mysql` for mysql)
+      query:
+      # for dump tool (`pg_dump` for postgresql, `mysqldump` for mysql)
+      # it's recommended to set '-no-owner' for postgresql, if your site use
+      # different usernames per site
+      dump: --no-owner
+
+# List of storage locations to sync in format: "name: path"
+# Path can be relative or absolute.
+directories:
+  files: "public/files"
+  images: "public/images"
+
+# List of remote sites with access credentials and configuration.
+sites:
+  dev:
+    # command to open shell on remote site
+    execCommand: ssh user@mycoolsite.org
+    terminalCommand: ssh -t user@mycoolsite.org
+    # root location of remote site, used to change directory after connection.
+    rootDirectory: "/home/user/mycoolsite.org/"
+    # custom shell to use when connecting.
+    shell: "bash"
+    # for ssh commands we need to quote all commmands bundle, for kubectl - not
+    quoteCommands: true
+
+  stage:
+    execCommand: kubectl exec -n mycoolsite-staging -i deployment/mycoolsite
+    terminalCommand: kubectl exec -n mycoolsite-staging -i -t deployment/mycoolsite
+
+  live:
+    execCommand: kubectl exec -n mycoolsite-prod -i deployment/mycoolsite
+    terminalCommand: kubectl exec -n mycoolsite-prod -i -t deployment/mycoolsite
+    # This is a flag, that disables destructive operations on that site (pushing changes, restore from backup, etc).
+    disableDestructiveOperations: true
+    # You can override executable of database's dump and query commands for current site using this section:
+    # databasesOverride:
+    #   main:
+    #     customExecutable:
+    #       dump: ./scripts/custom-dump.sh
+    #       query: /usr/local/bin/mysql8.0

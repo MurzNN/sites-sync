@@ -1,0 +1,5 @@
+#!/usr/bin/env sh
+
+DIR=$(dirname $([ -L $0 ] && readlink -f $0 || echo $0))
+
+$(which node) $DIR/dist/index.js "$@"
