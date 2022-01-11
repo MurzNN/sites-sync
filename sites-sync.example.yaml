@@ -73,9 +73,9 @@ sites:
     terminalCommand: kubectl exec -n mycoolsite-prod -i -t deployment/mycoolsite
     # This is a flag, that disables destructive operations on that site (pushing changes, restore from backup, etc).
     disableDestructiveOperations: true
+    # You can override executable of database's dump and query commands for current site using this section:
     # databasesOverride:
-      # Here you can override executable of database's dump and query commands for current site
-      # main:
-      #   customExecutable:
-      #     dump: ./scripts/custom-dump.sh
-      #     query: /usr/local/bin/mysql8.0
+    #   main:
+    #     customExecutable:
+    #       dump: ./scripts/custom-dump.sh
+    #       query: /usr/local/bin/mysql8.0
