@@ -17,12 +17,13 @@ jobs:
   check-release-version-match:
     needs: get-version
     runs-on: ubuntu-latest
-    if: needs.get-version.outputs.version != github.ref_name
+    if: "github.ref_name != format('v{0}', needs.get-version.outputs.version)"
     steps:
-      - run: echo "Release name (${{github.ref_name}}) and package version (${{needs.get-version.outputs.version}}) don't match, failing."; exit 1;
+      - run: echo "Github release name (${{github.ref_name}}) and package version (v${{needs.get-version.outputs.version}}) don't match, failing."; exit 1;
 
   lint-build-publish:
-    needs: check-release-version-match
+    needs: get-version
+    if: "github.ref_name == format('v{0}', needs.get-version.outputs.version)"
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
