@@ -53,6 +53,17 @@ function getCommand(nameOrAlias: string): string {
   return nameOrAlias;
 }
 
+function getCommandHook(
+  command: string,
+  hookType: "before" | "after"
+): string | undefined {
+  return (
+    config.siteCurrent?.commandsHooks?.[command]?.[hookType] ??
+    config.commandsHooks?.[command]?.[hookType] ??
+    undefined
+  );
+}
+
 const myYargs = yargs(process.argv.slice(2))
   .scriptName("sites-sync")
   .usage("Usage: $0 <command> [options]")
@@ -66,10 +77,12 @@ const myYargs = yargs(process.argv.slice(2))
   .middleware(function (argv) {
     if (!argv._[0]) return;
     const command = getCommand(argv._[0] as string);
-    if (command && config.commandHooks?.[command]?.before) {
-      const cmd = config.commandHooks?.[command]?.before as string;
-      console.log(`Executing "before" hook for command "${command}": ${cmd}`);
-      execSync(cmd, { stdio: "inherit" });
+    const commandHookBefore = getCommandHook(command, "before");
+    if (commandHookBefore) {
+      console.log(
+        `Executing "before" hook for command "${command}": ${commandHookBefore}`
+      );
+      execSync(commandHookBefore, { stdio: "inherit" });
       console.log(`"before" hook executing finished.`);
     }
   })
@@ -149,7 +162,8 @@ const myYargs = yargs(process.argv.slice(2))
     "Dump database to stdout.",
     {},
     async (argv) => {
-      const dbId = (argv.dbId as string) ?? Object.keys(config.databases)[0];
+      const dbId =
+        (argv.dbId as string) ?? Object.keys(config.databases ?? {})[0];
       doDatabaseDump(dbId);
     }
   )
@@ -158,7 +172,8 @@ const myYargs = yargs(process.argv.slice(2))
     "Execute db query from stdin.",
     {},
     async (argv) => {
-      const dbId = (argv.dbId as string) ?? Object.keys(config.databases)[0];
+      const dbId =
+        (argv.dbId as string) ?? Object.keys(config.databases ?? {})[0];
       doDatabaseQuery(dbId);
     }
   )
@@ -167,7 +182,8 @@ const myYargs = yargs(process.argv.slice(2))
     "Clear current database.",
     {},
     async (argv) => {
-      const dbId = (argv.dbId as string) ?? Object.keys(config.databases)[0];
+      const dbId =
+        (argv.dbId as string) ?? Object.keys(config.databases ?? {})[0];
       doDatabaseClear(dbId);
     }
   )
@@ -176,7 +192,8 @@ const myYargs = yargs(process.argv.slice(2))
     "Import database dump from stdin.",
     {},
     async (argv) => {
-      const dbId = (argv.dbId as string) ?? Object.keys(config.databases)[0];
+      const dbId =
+        (argv.dbId as string) ?? Object.keys(config.databases ?? {})[0];
       doDatabaseClear(dbId);
     }
   )
@@ -251,10 +268,12 @@ if (argv._.length == 0) {
   myYargs.showHelp();
 } else {
   const command = getCommand(argv._[0] as string);
-  if (command && config.commandHooks?.[command]?.after) {
-    const cmd = config.commandHooks?.[command]?.after as string;
-    console.log(`Executing "after" hook for command "${command}": ${cmd}`);
-    execSync(cmd, { stdio: "inherit" });
+  const commandHookAfter = getCommandHook(command, "after");
+  if (commandHookAfter) {
+    console.log(
+      `Executing "after" hook for command "${command}": ${commandHookAfter}`
+    );
+    execSync(commandHookAfter, { stdio: "inherit" });
     console.log(`"after" hook executing finished.`);
   }
 }

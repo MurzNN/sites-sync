@@ -19,21 +19,21 @@ import {
 import { dbAdapters } from "./dbAdapters.js";
 
 export function doDatabaseDump(dbId: string) {
-  if (!config.databases[dbId]) {
+  if (!config.databases?.[dbId]) {
     throw Error(`Database with id ${dbId} not found in config`);
   }
   dbAdapters[dbId].dump();
 }
 
 export function doDatabaseQuery(dbId: string, query: string | null = null) {
-  if (!config.databases[dbId]) {
+  if (!config.databases?.[dbId]) {
     throw Error(`Database with id ${dbId} not found in config`);
   }
   dbAdapters[dbId].query(query);
 }
 export function doDatabaseClear(dbId: string) {
   destructiveOperationCheck();
-  if (!config.databases[dbId]) {
+  if (!config.databases?.[dbId]) {
     throw Error(`Database with id ${dbId} not found in config`);
   }
   dbAdapters[dbId].clear();
@@ -116,7 +116,7 @@ export function doDatabasesBackup(backupDirectory: DirectoryPath): void {
 }
 
 export function doDatabaseBackup(dbId: string, file: FilePath): void {
-  if (!config.databases[dbId]) {
+  if (!config.databases?.[dbId]) {
     throw Error(`Database with id ${dbId} not found in config`);
   }
   dbAdapters[dbId].dumpToFile(file);
@@ -132,7 +132,7 @@ export function doDatabasesRestore(backupDirectory: DirectoryPath): void {
 
 export function doDatabaseRestore(dbId: string, file: FilePath): void {
   destructiveOperationCheck();
-  if (!config.databases[dbId]) {
+  if (!config.databases?.[dbId]) {
     throw Error(`Database with id ${dbId} not found in config`);
   }
   dbAdapters[dbId].restoreFromFile(file);
@@ -170,7 +170,7 @@ export function doDirectoryBackup(
   directoryId: string,
   backupDirectory: DirectoryPath
 ): void {
-  const path = config.directories[directoryId] as DirectoryPath;
+  const path = config.directories?.[directoryId] as DirectoryPath;
   const file = backupFilePath("directory", directoryId, backupDirectory);
   console.log(
     `Backing up directory "${directoryId}" to archive file "${file}" ...`
@@ -191,7 +191,7 @@ export function doDirectoryRestore(
   backupDirectory: DirectoryPath
 ): void {
   destructiveOperationCheck();
-  const path = config.directories[directoryId] as DirectoryPath;
+  const path = config.directories?.[directoryId] as DirectoryPath;
   const file = backupFilePath("directory", directoryId, backupDirectory);
   console.log(
     `Restoring directory "${directoryId}" from archive file "${file}" ...`

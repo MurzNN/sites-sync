@@ -22,8 +22,11 @@ export const getTmpFilename = function () {
 };
 
 export function prepareBackupDirectory(): DirectoryPath {
-  let directoryName = config.backup.nameFormat;
-  if (directoryName == "/" || directoryName == "") {
+  if (!config.backup) {
+    throw Error(`Backup configuration is not defined`);
+  }
+  let directoryName = config.backup?.nameFormat;
+  if (directoryName == "/" || !directoryName) {
     throw "Backup directory target is empty or pointing to root!";
   }
   const matches = /{%TIME:(?<time>[^%]+)%}/.exec(directoryName);
@@ -46,6 +49,9 @@ export function prepareBackupDirectory(): DirectoryPath {
 }
 
 export function getBackupDirectory(backupName?: string): DirectoryPath {
+  if (!config.backup) {
+    throw Error(`Backup configuration is not defined`);
+  }
   if (!backupName) {
     backupName = execSync(`ls -1 -t ${config.backup.directory} | head -n 1`)
       .toString()
@@ -55,6 +61,9 @@ export function getBackupDirectory(backupName?: string): DirectoryPath {
 }
 
 export function backupDirectoryCleanup(): void {
+  if (!config.backup) {
+    throw Error(`Backup configuration is not defined`);
+  }
   const BackupDirectory = prepareDirectoryPath(config.backup.directory);
   if ((config.backup.keepAmount ?? 0) < 1) {
     return;
@@ -76,6 +85,9 @@ export function backupDirectoryCleanup(): void {
 }
 
 export function backupDirectoryDeleteAll(): void {
+  if (!config.backup) {
+    throw Error(`Backup configuration is not defined`);
+  }
   const BackupDirectory = prepareDirectoryPath(config.backup.directory);
   if ((config.backup.keepAmount ?? 0) < 1) {
     return;

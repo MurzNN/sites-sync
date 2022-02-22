@@ -13,6 +13,9 @@ export type SitesSyncConfigSite = {
   quoteCommands?: boolean;
   databasesOverride?: SitesSyncConfigDbConnection;
   disableDestructiveOperations?: boolean;
+  commandsHooks?: {
+    [key: string]: SitesSyncConfigHook;
+  };
 };
 
 export type SitesSyncConfigDbConnection = {
@@ -29,24 +32,24 @@ export type SitesSyncConfigHook = {
 
 export type SitesSyncConfig = {
   siteId: string;
-  siteUpstreamId: string;
+  siteUpstreamId?: string;
 
-  backup: {
+  backup?: {
     directory: string;
     nameFormat: string;
     keepAmount?: number;
   };
-  tempDirectory: string;
+  tempDirectory?: string;
 
-  databases: {
+  databases?: {
     [key: string]: SitesSyncConfigDbConnection;
   };
 
-  directories: {
+  directories?: {
     [key: string]: string;
   };
 
-  commandHooks: {
+  commandsHooks?: {
     [key: string]: SitesSyncConfigHook;
   };
 
