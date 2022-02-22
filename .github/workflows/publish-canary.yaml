@@ -1,0 +1,57 @@
+name: Publish Canary build
+on:
+  push:
+    paths:
+      - "package.json"
+jobs:
+  get-version:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: extract-package-version
+        id: package-version
+        uses: Saionaro/extract-package-version@v1.0.6
+      - run: "echo 'Detected version: ${{steps.package-version.outputs.version}}'"
+    outputs:
+      version: ${{steps.package-version.outputs.version}}
+
+  lint-build-publish-canary:
+    needs: get-version
+    if: contains(needs.get-version.outputs.version, 'canary')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      # Setup node
+      - uses: actions/setup-node@v2
+        with:
+          node-version: "16.x"
+          registry-url: "https://registry.npmjs.org"
+
+      - run: yarn install --immutable --immutable-cache --check-cache
+      - run: npx prettier --check .
+      - run: tsc -p ./tsconfig.prod.json
+
+      - run: npm publish --tag canary
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+      - run: ./scripts/npmjs-repo-cleanup.sh
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      # # Build and publish to Docker
+      # - name: Set up QEMU
+      #   uses: docker/setup-qemu-action@v1
+      # - name: Set up Docker Buildx
+      #   uses: docker/setup-buildx-action@v1
+      # - name: Login to DockerHub
+      #   uses: docker/login-action@v1
+      #   with:
+      #     username: ${{ secrets.DOCKERHUB_USERNAME }}
+      #     password: ${{ secrets.DOCKERHUB_TOKEN }}
+      # - name: Build and push
+      #   id: docker_build
+      #   uses: docker/build-push-action@v2
+      #   with:
+      #     push: true
+      #     tags: murznn/sites-sync:${{ needs.get-version.outputs.version }},murznn/sites-sync:canary

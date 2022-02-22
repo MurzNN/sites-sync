@@ -43,5 +43,5 @@ Commands:
 Options:
       --version  Show version number                                   [boolean]
   -s, --site     Use custom upstream site id                            [string]
-  -h, --help     Show help                                             [boolean]```
+  -h, --help     Show help                                             [boolean]
 ```
