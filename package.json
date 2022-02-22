@@ -1,6 +1,6 @@
 {
   "name": "sites-sync",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Tools for automate sync of dynamic data (content like database and files) between sites via ssh or kubectl.",
   "main": "dist/index.js",
   "license": "MIT",
@@ -32,7 +32,8 @@
     "ss": "node dist/index.js",
     "build": "tsc -p ./tsconfig.prod.json",
     "watch": "tsc --watch",
-    "start": "node dist/index.js"
+    "start": "node dist/index.js",
+    "release": "standard-version"
   },
   "dependencies": {
     "@tuplo/envsubst": "^1.13.0",
