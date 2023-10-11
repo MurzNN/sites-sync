@@ -76,6 +76,16 @@ BEGIN
         EXECUTE 'DROP SEQUENCE IF EXISTS ' || quote_ident(r.relname) || ' CASCADE';
     END LOOP;
 END $$;
+
+-- Dropping all data types from database
+
+DO $$ DECLARE
+    r RECORD;
+BEGIN
+    FOR r IN (SELECT typname FROM pg_type WHERE typnamespace = (SELECT oid FROM pg_namespace WHERE nspname = current_schema())) LOOP
+        EXECUTE 'DROP TYPE IF EXISTS ' || quote_ident(r.typname) || ' CASCADE';
+    END LOOP;
+END $$;
 `;
   }
 }
